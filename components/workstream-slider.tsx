@@ -36,41 +36,34 @@ export function WorkstreamSlider({
         </Button>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {workstreams.map((workstream) => (
             <div
               key={workstream.id}
-              className="space-y-2 p-4 rounded-lg border"
+              className="flex items-center gap-3 p-3 rounded-lg border"
               style={{ borderLeftColor: workstream.color, borderLeftWidth: '4px' }}
             >
-              <div className="flex items-center justify-between">
-                <Input
-                  value={workstream.name}
-                  onChange={(e) => onUpdateName(workstream.id, e.target.value)}
-                  className="flex-1 mr-2 font-medium"
-                  placeholder="Workstream name"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => onDeleteWorkstream(workstream.id)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <Label>Effort Allocation</Label>
-                  <span className="font-semibold">{workstream.effort.toFixed(1)}%</span>
-                </div>
-                <Slider
-                  value={[workstream.effort]}
-                  onValueChange={(values) => onUpdateEffort(workstream.id, values[0])}
-                  max={100}
-                  step={0.5}
-                  className="w-full"
-                />
-              </div>
+              <Input
+                value={workstream.name}
+                onChange={(e) => onUpdateName(workstream.id, e.target.value)}
+                className="w-40 font-medium text-sm"
+                placeholder="Workstream name"
+              />
+              <Slider
+                value={[workstream.effort]}
+                onValueChange={(values) => onUpdateEffort(workstream.id, values[0])}
+                max={100}
+                step={0.5}
+                className="flex-1"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => onDeleteWorkstream(workstream.id)}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
           ))}
         </div>

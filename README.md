@@ -6,10 +6,13 @@ A web-based dashboard for evaluating and assigning workstreams to team members w
 
 - 📊 **Interactive Pie Chart** - Visualize effort distribution across workstreams in real-time
 - 🎚️ **Effort Sliders** - Adjust proportional levels of effort with intuitive slider controls
+- 📁 **Multiple Effort Graphs** - Create and manage multiple named effort graphs
+- 👥 **Collaboration** - Share graphs with team members with viewer/editor permissions
+- 🔐 **Authentication** - Secure magic link authentication via Supabase
 - ➕ **Dynamic Workstreams** - Create and delete workstreams on the fly
 - 🎨 **Color-coded** - Each workstream gets a unique color for easy identification
 - 💾 **Persistent Storage** - All data is stored in Supabase for reliability
-- ⚠️ **Capacity Tracking** - Visual indicators when effort exceeds or falls short of 100%
+- ⚠️ **Relative Visualization** - Pie chart always shows relative proportions (normalized to 100%)
 
 ## Tech Stack
 

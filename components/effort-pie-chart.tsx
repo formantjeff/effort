@@ -9,31 +9,24 @@ interface EffortPieChartProps {
 }
 
 export function EffortPieChart({ workstreams }: EffortPieChartProps) {
+  const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
+
+  // Calculate relative proportions (always adds up to 100%)
   const data = workstreams
     .filter((ws) => ws.effort > 0)
     .map((ws) => ({
       name: ws.name,
-      value: ws.effort,
+      value: totalEffort > 0 ? (ws.effort / totalEffort) * 100 : 0,
+      actualValue: ws.effort,
       color: ws.color,
     }))
-
-  const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
-
-  // Add unallocated capacity if less than 100%
-  if (totalEffort < 100) {
-    data.push({
-      name: 'Unallocated',
-      value: 100 - totalEffort,
-      color: '#e5e7eb',
-    })
-  }
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border rounded-lg shadow-lg">
           <p className="font-semibold">{payload[0].name}</p>
-          <p className="text-sm text-gray-600">{payload[0].value.toFixed(1)}%</p>
+          <p className="text-sm text-gray-600">{payload[0].payload.value.toFixed(1)}% of total</p>
         </div>
       )
     }
@@ -81,11 +74,6 @@ export function EffortPieChart({ workstreams }: EffortPieChartProps) {
             <Legend />
           </PieChart>
         </ResponsiveContainer>
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Total Allocated: <span className="font-semibold">{totalEffort.toFixed(1)}%</span>
-          </p>
-        </div>
       </CardContent>
     </Card>
   )
