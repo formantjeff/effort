@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   description: "Manage and visualize team workstream allocations",
 };
 
+// Force dynamic rendering for the entire app
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({
   children,
 }: Readonly<{
