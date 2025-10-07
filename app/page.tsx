@@ -36,6 +36,7 @@ export default function Home() {
     if (user) {
       loadGraphs()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   // Load workstreams when graph changes
@@ -45,6 +46,7 @@ export default function Home() {
     } else {
       setWorkstreams([])
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentGraph])
 
   async function loadGraphs() {
@@ -70,7 +72,7 @@ export default function Home() {
       const allGraphs: GraphWithPermission[] = [
         ...(ownedGraphs || []).map(g => ({ ...g, permission: 'owner' as const })),
         ...(permissions || []).map(p => ({
-          ...(p.effort_graphs as any),
+          ...(p.effort_graphs as EffortGraph),
           permission: p.permission_level as 'viewer' | 'editor'
         }))
       ]

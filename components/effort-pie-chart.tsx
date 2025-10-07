@@ -21,7 +21,7 @@ export function EffortPieChart({ workstreams }: EffortPieChartProps) {
       color: ws.color,
     }))
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ name: string; payload: { value: number } }> }) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-3 border rounded-lg shadow-lg">

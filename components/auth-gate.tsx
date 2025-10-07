@@ -21,7 +21,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     try {
       await signIn(email)
       setMessage('Check your email for the login link!')
-    } catch (error) {
+    } catch {
       setMessage('Error sending login link. Please try again.')
     } finally {
       setIsSubmitting(false)
