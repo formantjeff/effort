@@ -1,6 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 import { WorkstreamSlider } from '@/components/workstream-slider'
 import { EffortPieChart } from '@/components/effort-pie-chart'
 import { AuthGate } from '@/components/auth-gate'
