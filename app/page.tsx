@@ -36,10 +36,11 @@ export default function Home() {
   const [allWorkstreams, setAllWorkstreams] = useState<Record<string, Workstream[]>>({})
   const supabase = createClient()
 
-  // Load user's graphs
+  // Load user's graphs and reset to library view on login
   useEffect(() => {
     if (user) {
       loadGraphs()
+      setCurrentTab('library') // Always start at library view
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
