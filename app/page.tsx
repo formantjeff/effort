@@ -252,13 +252,13 @@ export default function Home() {
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-gray-50 pb-20">
+      <div className="min-h-screen bg-black pb-20">
         <div className="max-w-7xl mx-auto">
           {currentTab === 'effort' && (
             <div className="p-4">
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p className="text-gray-500">Loading...</p>
+                  <p className="text-slate-400">Loading...</p>
                 </div>
               ) : currentGraph ? (
                 <div className="space-y-4">
@@ -280,7 +280,7 @@ export default function Home() {
                   )}
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-64 text-gray-500">
+                <div className="flex items-center justify-center h-64 text-slate-400">
                   <p>Create your first effort graph to get started!</p>
                 </div>
               )}
@@ -290,13 +290,14 @@ export default function Home() {
           {currentTab === 'library' && (
             <div className="p-4">
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold">Library</h1>
+                <h1 className="text-2xl font-bold text-white">Library</h1>
                 <Button
                   size="sm"
                   onClick={() => {
                     const name = prompt('Enter effort name:')
                     if (name) handleCreateGraph(name, '')
                   }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   New
@@ -305,7 +306,7 @@ export default function Home() {
 
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p className="text-gray-500">Loading...</p>
+                  <p className="text-slate-400">Loading...</p>
                 </div>
               ) : graphs.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4">
@@ -322,13 +323,14 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                <div className="flex flex-col items-center justify-center h-64 text-slate-400">
                   <p className="mb-4">No efforts yet</p>
                   <Button
                     onClick={() => {
                       const name = prompt('Enter effort name:')
                       if (name) handleCreateGraph(name, '')
                     }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Create your first effort

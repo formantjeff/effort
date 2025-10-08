@@ -23,10 +23,10 @@ export function WorkstreamSlider({
   onUpdateName,
 }: WorkstreamSliderProps) {
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-slate-800 border-slate-700">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Workstreams</CardTitle>
-        <Button onClick={onAddWorkstream} size="sm">
+        <CardTitle className="text-white">Workstreams</CardTitle>
+        <Button onClick={onAddWorkstream} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
           <Plus className="h-4 w-4 mr-2" />
           Add Stream
         </Button>
@@ -36,13 +36,13 @@ export function WorkstreamSlider({
           {workstreams.map((workstream) => (
             <div
               key={workstream.id}
-              className="flex items-center gap-3 p-3 rounded-lg border"
+              className="flex items-center gap-3 p-3 rounded-lg border border-slate-600 bg-slate-700"
               style={{ borderLeftColor: workstream.color, borderLeftWidth: '4px' }}
             >
               <Input
                 value={workstream.name}
                 onChange={(e) => onUpdateName(workstream.id, e.target.value)}
-                className="w-40 font-medium text-sm"
+                className="w-40 font-medium text-sm bg-slate-600 border-slate-500 text-white placeholder:text-slate-400"
                 placeholder="Workstream name"
               />
               <Slider
@@ -56,7 +56,7 @@ export function WorkstreamSlider({
                 variant="ghost"
                 size="sm"
                 onClick={() => onDeleteWorkstream(workstream.id)}
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 text-slate-300 hover:text-white hover:bg-slate-600"
               >
                 <X className="h-4 w-4" />
               </Button>

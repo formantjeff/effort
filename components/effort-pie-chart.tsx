@@ -31,9 +31,9 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
   const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ name: string; payload: { value: number } }> }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border rounded-lg shadow-lg">
-          <p className="font-semibold">{payload[0].name}</p>
-          <p className="text-sm text-gray-600">{payload[0].payload.value.toFixed(1)}% of total</p>
+        <div className="bg-slate-800 border-slate-600 p-3 border rounded-lg shadow-lg">
+          <p className="font-semibold text-white">{payload[0].name}</p>
+          <p className="text-sm text-slate-300">{payload[0].payload.value.toFixed(1)}% of total</p>
         </div>
       )
     }
@@ -56,12 +56,12 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
 
   if (data.length === 0) {
     return (
-      <Card className="h-full">
+      <Card className="h-full bg-slate-800 border-slate-700">
         <CardHeader>
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-white">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
-          <p className="text-gray-400 text-center">
+          <p className="text-slate-400 text-center">
             No workstreams yet.<br />Add a workstream to get started.
           </p>
         </CardContent>
@@ -70,16 +70,16 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full bg-slate-800 border-slate-700">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>{title}</CardTitle>
+          <CardTitle className="text-white">{title}</CardTitle>
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="icon"
               onClick={handleShare}
-              className="shrink-0"
+              className="shrink-0 text-slate-300 hover:text-white hover:bg-slate-700"
             >
               <Share2 className="h-5 w-5" />
             </Button>
@@ -87,7 +87,7 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
               variant="ghost"
               size="icon"
               onClick={onEditClick}
-              className="shrink-0"
+              className="shrink-0 text-slate-300 hover:text-white hover:bg-slate-700"
             >
               <Pencil className="h-5 w-5" />
             </Button>
@@ -119,7 +119,7 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
                 dataKey="value"
               >
                 {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />

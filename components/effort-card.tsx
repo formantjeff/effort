@@ -24,11 +24,11 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-lg transition-shadow"
+      className="cursor-pointer hover:shadow-lg transition-shadow bg-slate-800 border-slate-700"
       onClick={onClick}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem]">{name}</CardTitle>
+        <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem] text-white">{name}</CardTitle>
       </CardHeader>
       <CardContent className="pb-6">
         <div className="h-[150px] flex items-center justify-center">
@@ -44,13 +44,13 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
                   dataKey="value"
                 >
                   {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
+                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                   ))}
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-gray-400 text-sm">No workstreams</p>
+            <p className="text-slate-400 text-sm">No workstreams</p>
           )}
         </div>
       </CardContent>
