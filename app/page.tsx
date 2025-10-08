@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react'
 import { WorkstreamSlider } from '@/components/workstream-slider'
 import { EffortPieChart } from '@/components/effort-pie-chart'
+import { EffortCard } from '@/components/effort-card'
 import { AuthGate } from '@/components/auth-gate'
-import { GraphSelector } from '@/components/graph-selector'
-import { useAuth } from '@/components/auth-provider'
+import { BottomNav } from '@/components/bottom-nav'
+import { AccountTab } from '@/components/account-tab'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/components/auth-provider'
 import { createClient } from '@/lib/supabase-browser'
 import { Workstream, EffortGraph, GraphWithPermission } from '@/lib/supabase'
-import { LogOut } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 // Color palette for workstreams
 const COLORS = [
@@ -29,6 +31,9 @@ export default function Home() {
   const [currentGraph, setCurrentGraph] = useState<EffortGraph | null>(null)
   const [workstreams, setWorkstreams] = useState<Workstream[]>([])
   const [loading, setLoading] = useState(true)
+  const [isEditing, setIsEditing] = useState(false)
+  const [currentTab, setCurrentTab] = useState<'effort' | 'library' | 'account'>('library')
+  const [allWorkstreams, setAllWorkstreams] = useState<Record<string, Workstream[]>>({})
   const supabase = createClient()
 
   // Load user's graphs
@@ -39,15 +44,31 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
+  // Load all workstreams when graphs change
+  useEffect(() => {
+    if (graphs.length > 0) {
+      loadAllWorkstreams()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [graphs])
+
   // Load workstreams when graph changes
   useEffect(() => {
     if (currentGraph) {
       loadWorkstreams()
+      setIsEditing(false) // Reset edit mode when opening an effort
     } else {
       setWorkstreams([])
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentGraph])
+
+  // Show sliders by default if no workstreams exist
+  useEffect(() => {
+    if (workstreams.length === 0) {
+      setIsEditing(true)
+    }
+  }, [workstreams.length])
 
   async function loadGraphs() {
     try {
@@ -104,6 +125,32 @@ export default function Home() {
       setWorkstreams(data || [])
     } catch (error) {
       console.error('Error loading workstreams:', error)
+    }
+  }
+
+  async function loadAllWorkstreams() {
+    if (graphs.length === 0) return
+
+    try {
+      const workstreamsByGraph: Record<string, Workstream[]> = {}
+
+      await Promise.all(
+        graphs.map(async (graph) => {
+          const { data, error } = await supabase
+            .from('workstreams')
+            .select('*')
+            .eq('graph_id', graph.id)
+            .order('created_at', { ascending: true })
+
+          if (!error && data) {
+            workstreamsByGraph[graph.id] = data
+          }
+        })
+      )
+
+      setAllWorkstreams(workstreamsByGraph)
+    } catch (error) {
+      console.error('Error loading all workstreams:', error)
     }
   }
 
@@ -210,56 +257,98 @@ export default function Home() {
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-gray-50 p-8">
+      <div className="min-h-screen bg-gray-50 pb-20">
         <div className="max-w-7xl mx-auto">
-          <header className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900">Effort</h1>
-              <p className="text-gray-600 mt-2">
-                Manage and visualize team workstream allocations
-              </p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-600">{user?.email}</p>
-              </div>
-              <Button variant="outline" size="sm" onClick={signOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
-          </header>
-
-          <div className="mb-6">
-            <GraphSelector
-              graphs={graphs}
-              currentGraph={currentGraph}
-              onSelectGraph={handleSelectGraph}
-              onCreateGraph={handleCreateGraph}
-            />
-          </div>
-
-          {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <p className="text-gray-500">Loading...</p>
-            </div>
-          ) : currentGraph ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <WorkstreamSlider
-                workstreams={workstreams}
-                onUpdateEffort={handleUpdateEffort}
-                onDeleteWorkstream={handleDeleteWorkstream}
-                onAddWorkstream={handleAddWorkstream}
-                onUpdateName={handleUpdateName}
-              />
-              <EffortPieChart workstreams={workstreams} />
-            </div>
-          ) : (
-            <div className="flex items-center justify-center h-64 text-gray-500">
-              <p>Create your first effort graph to get started!</p>
+          {currentTab === 'effort' && (
+            <div className="p-4">
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <p className="text-gray-500">Loading...</p>
+                </div>
+              ) : currentGraph ? (
+                <div className="space-y-4">
+                  <EffortPieChart
+                    workstreams={workstreams}
+                    onEditClick={() => setIsEditing(!isEditing)}
+                    onUpdateEffort={handleUpdateEffort}
+                    isEditing={isEditing}
+                    title={currentGraph.name}
+                  />
+                  {isEditing && (
+                    <WorkstreamSlider
+                      workstreams={workstreams}
+                      onUpdateEffort={handleUpdateEffort}
+                      onDeleteWorkstream={handleDeleteWorkstream}
+                      onAddWorkstream={handleAddWorkstream}
+                      onUpdateName={handleUpdateName}
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-64 text-gray-500">
+                  <p>Create your first effort graph to get started!</p>
+                </div>
+              )}
             </div>
           )}
+
+          {currentTab === 'library' && (
+            <div className="p-4">
+              <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold">Library</h1>
+                <Button
+                  size="sm"
+                  onClick={() => {
+                    const name = prompt('Enter effort name:')
+                    if (name) handleCreateGraph(name, '')
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  New
+                </Button>
+              </div>
+
+              {loading ? (
+                <div className="flex items-center justify-center h-64">
+                  <p className="text-gray-500">Loading...</p>
+                </div>
+              ) : graphs.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {graphs.map((graph) => (
+                    <EffortCard
+                      key={graph.id}
+                      name={graph.name}
+                      workstreams={allWorkstreams[graph.id] || []}
+                      onClick={() => {
+                        setCurrentGraph(graph)
+                        setCurrentTab('effort')
+                      }}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+                  <p className="mb-4">No efforts yet</p>
+                  <Button
+                    onClick={() => {
+                      const name = prompt('Enter effort name:')
+                      if (name) handleCreateGraph(name, '')
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create your first effort
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {currentTab === 'account' && (
+            <AccountTab email={user?.email} onSignOut={signOut} />
+          )}
         </div>
+
+        <BottomNav currentTab={currentTab} onTabChange={setCurrentTab} />
       </div>
     </AuthGate>
   )

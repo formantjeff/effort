@@ -3,6 +3,9 @@
 ## Project Overview
 Effort is a mobile-first web application for managing and visualizing team workstream allocations. Users can create multiple effort graphs, adjust workstream percentages with sliders, and view distributions in pie charts.
 
+### Terminology
+- **Effort**: A pairing of a pie chart visualization and workstream sliders. The pie chart appears first (above/before the sliders in the layout).
+
 ## Tech Stack
 - **Framework**: Next.js 15 (App Router)
 - **Language**: TypeScript

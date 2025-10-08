@@ -67,28 +67,6 @@ export function WorkstreamSlider({
           ))}
         </div>
 
-        <div className="pt-4 border-t">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Total Effort:</span>
-            <span
-              className={`text-lg font-bold ${
-                isOverCapacity ? 'text-red-600' : totalEffort === 100 ? 'text-green-600' : 'text-gray-600'
-              }`}
-            >
-              {totalEffort.toFixed(1)}%
-            </span>
-          </div>
-          {isOverCapacity && (
-            <p className="text-sm text-red-600 mt-2">
-              ⚠️ Total effort exceeds 100%. Please adjust allocations.
-            </p>
-          )}
-          {totalEffort < 100 && totalEffort > 0 && (
-            <p className="text-sm text-gray-500 mt-2">
-              {(100 - totalEffort).toFixed(1)}% remaining capacity
-            </p>
-          )}
-        </div>
       </CardContent>
     </Card>
   )
