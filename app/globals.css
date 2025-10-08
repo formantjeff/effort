@@ -117,8 +117,18 @@
     @apply border-border;
   }
 
-  *:focus-visible {
-    outline: none;
+  *:focus,
+  *:focus-visible,
+  *:active {
+    outline: none !important;
+  }
+
+  svg:focus,
+  path:focus,
+  g:focus,
+  rect:focus,
+  circle:focus {
+    outline: none !important;
   }
 
   body {
