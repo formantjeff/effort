@@ -113,7 +113,7 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
                 cy="50%"
                 labelLine={false}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                label={(props: any) => `${props.name}: ${props.value.toFixed(1)}%`}
+                label={(props: any) => `${props.value.toFixed(1)}%`}
                 outerRadius={120}
                 fill="#8884d8"
                 dataKey="value"

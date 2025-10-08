@@ -252,7 +252,7 @@ export default function Home() {
 
   return (
     <AuthGate>
-      <div className="min-h-screen bg-black pb-20">
+      <div className="min-h-screen bg-white dark:bg-black pb-20">
         <div className="max-w-7xl mx-auto">
           {currentTab === 'effort' && (
             <div className="p-4">
