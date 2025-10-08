@@ -179,12 +179,6 @@ export default function Home() {
     }
   }
 
-  async function handleSelectGraph(graphId: string) {
-    const graph = graphs.find((g) => g.id === graphId)
-    if (graph) {
-      setCurrentGraph(graph)
-    }
-  }
 
   async function handleUpdateEffort(id: string, effort: number) {
     try {

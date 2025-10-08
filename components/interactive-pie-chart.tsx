@@ -121,7 +121,7 @@ export function InteractivePieChart({
     }
   }
 
-  const handleMove = (clientX: number, clientY: number) => {
+  const handleMove = (clientX: number) => {
     if (draggingIndex === null || workstreams.length < 2) return
 
     // Calculate horizontal drag distance
@@ -178,7 +178,7 @@ export function InteractivePieChart({
   const handleMouseMove = (e: React.MouseEvent) => {
     if (draggingIndex !== null) {
       e.preventDefault()
-      handleMove(e.clientX, e.clientY)
+      handleMove(e.clientX)
     }
   }
 
@@ -194,7 +194,7 @@ export function InteractivePieChart({
     if (e.touches.length === 1 && draggingIndex !== null) {
       e.preventDefault()
       const touch = e.touches[0]
-      handleMove(touch.clientX, touch.clientY)
+      handleMove(touch.clientX)
     }
   }
 

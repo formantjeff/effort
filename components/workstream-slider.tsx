@@ -22,9 +22,6 @@ export function WorkstreamSlider({
   onAddWorkstream,
   onUpdateName,
 }: WorkstreamSliderProps) {
-  const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
-  const isOverCapacity = totalEffort > 100
-
   return (
     <Card className="h-full">
       <CardHeader className="flex flex-row items-center justify-between">

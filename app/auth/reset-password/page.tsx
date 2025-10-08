@@ -44,8 +44,9 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push('/')
       }, 2000)
-    } catch (error: any) {
-      setMessage(error?.message || 'Error updating password. Please try again.')
+    } catch (error) {
+      const err = error as Error
+      setMessage(err?.message || 'Error updating password. Please try again.')
     } finally {
       setIsSubmitting(false)
     }

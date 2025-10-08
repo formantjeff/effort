@@ -38,8 +38,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     try {
       await signInWithPassword(email, password)
       setMessage('Successfully signed in!')
-    } catch (error: any) {
-      setMessage(error?.message || 'Error signing in. Please check your credentials.')
+    } catch (error) {
+      const err = error as Error
+      setMessage(err?.message || 'Error signing in. Please check your credentials.')
     } finally {
       setIsSubmitting(false)
     }
@@ -59,8 +60,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     try {
       await signUp(email, password)
       setMessage('Account created! Check your email to confirm.')
-    } catch (error: any) {
-      setMessage(error?.message || 'Error creating account. Please try again.')
+    } catch (error) {
+      const err = error as Error
+      setMessage(err?.message || 'Error creating account. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
@@ -74,8 +76,9 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     try {
       await resetPassword(email)
       setMessage('Password reset email sent! Check your inbox.')
-    } catch (error: any) {
-      setMessage(error?.message || 'Error sending reset email. Please try again.')
+    } catch (error) {
+      const err = error as Error
+      setMessage(err?.message || 'Error sending reset email. Please try again.')
     } finally {
       setIsSubmitting(false)
     }
