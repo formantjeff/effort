@@ -18,7 +18,9 @@ Effort tracking app with Supabase backend, Next.js frontend, and Slack integrati
 - Share efforts publicly with view tracking
 - Dark/light theme with database persistence
 - Swipe navigation between efforts
-- Slack integration for viewing and sharing efforts
+- Slack integration for viewing and sharing efforts with inline chart images
+- Server-side chart generation using Canvas and ChartJS
+- Supabase Storage for cached chart images
 
 ## Environment Variables
 
@@ -45,10 +47,14 @@ Same as above - make sure all are added to Vercel project settings.
 ### Tables
 - `effort_graphs` - Main effort allocations (owner: user)
 - `workstreams` - Individual workstreams within an effort
-- `shared_efforts` - Public share links with view tracking
+- `shared_efforts` - Public share links with view tracking (includes slack_view_count, web_view_count)
+- `effort_view_logs` - Detailed view tracking by source (slack/web)
 - `graph_permissions` - Shared access permissions
 - `user_preferences` - User settings (theme)
 - `slack_users` - Links Slack accounts to app users
+
+### Storage Buckets
+- `effort-charts` - Public bucket for cached chart PNG images (organized by userId/graphId-theme.png)
 
 ### Key Relationships
 - `effort_graphs.author_id` → `auth.users.id`
@@ -67,6 +73,8 @@ Same as above - make sure all are added to Vercel project settings.
 - `/api/slack/link` - Account linking flow
 - `/api/slack/events` - Event subscriptions
 - `/api/slack/interactive` - Button/modal interactions
+- `/api/chart/[graphId]` - Generates chart PNG and uploads to Supabase Storage, returns redirect to public URL
+- `/api/chart/invalidate` - Clears cached chart images when workstream data changes
 
 ### Commands
 - `/effort list` - List all user's efforts
@@ -86,6 +94,9 @@ Same as above - make sure all are added to Vercel project settings.
 - Slack commands use service role client (bypasses RLS)
 - User linking stored in `slack_users` table
 - Slack user ID + team ID used for linking
+- Charts are rendered server-side using `chartjs-node-canvas` and stored in Supabase Storage
+- Charts respect user's theme preference from web app (not Slack theme)
+- Chart cache automatically invalidated when workstreams are added/updated/deleted
 
 ## Development Setup
 
@@ -111,6 +122,12 @@ Or use Supabase CLI:
 supabase db push
 ```
 
+### Recent Migrations (Pending)
+- `20251009000001_add_view_tracking.sql` - Adds view tracking columns and effort_view_logs table
+- `20251009000002_create_chart_storage.sql` - Creates effort-charts storage bucket with RLS policies
+
+**Action Required**: Run these migrations in Supabase before deploying to production
+
 ## Key Files
 
 ### Components
@@ -123,6 +140,8 @@ supabase db push
 ### API Routes
 - `app/api/slack/*` - Slack integration endpoints
 - `app/api/share/[token]/route.ts` - Share link handler
+- `app/api/chart/[graphId]/route.ts` - Chart image generation and storage
+- `app/api/chart/invalidate/route.ts` - Chart cache invalidation
 
 ### Lib
 - `lib/supabase.ts` - Supabase client + TypeScript types
@@ -146,6 +165,13 @@ supabase db push
 ### Theme Not Persisting
 - Check `user_preferences` table exists
 - Verify RLS policies allow user to update their preferences
+
+### Chart Images Not Showing in Slack
+- Verify storage bucket `effort-charts` exists and is public
+- Check migration `20251009000002_create_chart_storage.sql` has been run
+- Verify RLS policies on storage.objects allow public read
+- Check Vercel logs for chart generation errors
+- Canvas library requires native dependencies - may need Vercel build configuration
 
 ## Deployment
 

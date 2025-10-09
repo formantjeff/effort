@@ -182,6 +182,20 @@ export default function Home() {
   }
 
 
+  async function invalidateChartCache() {
+    if (currentGraph) {
+      try {
+        await fetch('/api/chart/invalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ graphId: currentGraph.id }),
+        })
+      } catch (error) {
+        console.error('Error invalidating cache:', error)
+      }
+    }
+  }
+
   async function handleUpdateEffort(id: string, effort: number) {
     try {
       const { error } = await supabase
@@ -194,6 +208,9 @@ export default function Home() {
       setWorkstreams((prev) =>
         prev.map((ws) => (ws.id === id ? { ...ws, effort } : ws))
       )
+
+      // Invalidate chart cache since data changed
+      await invalidateChartCache()
     } catch (error) {
       console.error('Error updating effort:', error)
     }
@@ -211,6 +228,9 @@ export default function Home() {
       setWorkstreams((prev) =>
         prev.map((ws) => (ws.id === id ? { ...ws, name } : ws))
       )
+
+      // Invalidate chart cache since data changed
+      await invalidateChartCache()
     } catch (error) {
       console.error('Error updating name:', error)
     }
@@ -236,6 +256,9 @@ export default function Home() {
 
       if (error) throw error
       setWorkstreams((prev) => [...prev, data])
+
+      // Invalidate chart cache since data changed
+      await invalidateChartCache()
     } catch (error) {
       console.error('Error adding workstream:', error)
     }
@@ -247,6 +270,9 @@ export default function Home() {
 
       if (error) throw error
       setWorkstreams((prev) => prev.filter((ws) => ws.id !== id))
+
+      // Invalidate chart cache since data changed
+      await invalidateChartCache()
     } catch (error) {
       console.error('Error deleting workstream:', error)
     }

@@ -128,6 +128,34 @@ export async function GET(
 
     const image = await chartCallback.renderToBuffer(configuration as never)
 
+    // Upload to Supabase Storage
+    const fileName = `${graph.author_id}/${graphId}-${theme}.png`
+    const { error: uploadError } = await supabase
+      .storage
+      .from('effort-charts')
+      .upload(fileName, Buffer.from(image), {
+        contentType: 'image/png',
+        upsert: true, // Overwrite if exists
+        cacheControl: '300', // Cache for 5 minutes
+      })
+
+    if (uploadError) {
+      console.error('Error uploading to storage:', uploadError)
+      // Fall back to direct response if upload fails
+      return new NextResponse(Buffer.from(image), {
+        headers: {
+          'Content-Type': 'image/png',
+          'Cache-Control': 'public, max-age=300',
+        },
+      })
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('effort-charts')
+      .getPublicUrl(fileName)
+
     // Track Slack view
     try {
       // Log the view
@@ -161,12 +189,8 @@ export async function GET(
       console.error('Error tracking view:', error)
     }
 
-    return new NextResponse(Buffer.from(image), {
-      headers: {
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
-      },
-    })
+    // Redirect to the public URL
+    return NextResponse.redirect(publicUrl)
   } catch (error) {
     console.error('Error generating chart:', error)
     return new NextResponse('Error generating chart', { status: 500 })
