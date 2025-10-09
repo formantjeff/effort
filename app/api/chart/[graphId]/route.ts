@@ -31,10 +31,20 @@ export async function GET(
       return new NextResponse('No workstreams found', { status: 404 })
     }
 
-    // Create chart
-    const width = 600
-    const height = 400
-    const chartCallback = new ChartJSNodeCanvas({ width, height, backgroundColour: 'white' })
+    // Create chart with neutral background that works in both light and dark Slack
+    const width = 800
+    const height = 500
+    const bgColor = '#1a1a1a' // Dark background similar to your app
+    const textColor = '#e5e5e5' // Light text
+
+    const chartCallback = new ChartJSNodeCanvas({
+      width,
+      height,
+      backgroundColour: bgColor,
+      plugins: {
+        modern: ['chartjs-plugin-datalabels'],
+      }
+    })
 
     const configuration = {
       type: 'pie' as const,
@@ -43,25 +53,35 @@ export async function GET(
         datasets: [{
           data: workstreams.map(w => w.effort),
           backgroundColor: workstreams.map(w => w.color),
-          borderWidth: 2,
-          borderColor: '#ffffff',
+          borderWidth: 3,
+          borderColor: bgColor,
         }],
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: true,
         plugins: {
           title: {
             display: true,
             text: graph.name,
+            color: textColor,
             font: {
-              size: 20,
+              size: 24,
+              weight: 'bold' as const,
+            },
+            padding: {
+              top: 20,
+              bottom: 20,
             },
           },
           legend: {
             position: 'right' as const,
             labels: {
+              color: textColor,
               font: {
-                size: 14,
+                size: 16,
               },
+              padding: 15,
               generateLabels: (chart: any) => {
                 const data = chart.data
                 if (data.labels && data.datasets.length) {
@@ -70,6 +90,7 @@ export async function GET(
                     return {
                       text: `${label}: ${value.toFixed(1)}%`,
                       fillStyle: data.datasets[0].backgroundColor[i],
+                      strokeStyle: data.datasets[0].backgroundColor[i],
                       hidden: false,
                       index: i,
                     }
@@ -78,6 +99,14 @@ export async function GET(
                 return []
               },
             },
+          },
+        },
+        layout: {
+          padding: {
+            top: 10,
+            bottom: 10,
+            left: 20,
+            right: 20,
           },
         },
       },
