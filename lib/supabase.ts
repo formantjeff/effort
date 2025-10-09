@@ -48,3 +48,13 @@ export interface SharedEffort {
   created_at: string
   updated_at: string
 }
+
+export interface SlackUser {
+  id: string
+  user_id: string
+  slack_user_id: string
+  slack_team_id: string
+  slack_access_token: string | null
+  created_at: string
+  updated_at: string
+}
