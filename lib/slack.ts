@@ -89,15 +89,17 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   ]
 
-  // Add workstream breakdown
-  workstreams.forEach((ws) => {
-    blocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `• *${ws.name}*: ${ws.effort.toFixed(1)}%`,
-      },
-    })
+  // Add workstream breakdown - combine into fewer blocks to avoid hitting Slack's limits
+  const workstreamText = workstreams
+    .map(ws => `• *${ws.name}*: ${ws.effort.toFixed(1)}%`)
+    .join('\n')
+
+  blocks.push({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: workstreamText,
+    },
   })
 
   // Add view link if share URL provided
