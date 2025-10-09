@@ -324,19 +324,8 @@ export default function Home() {
 
           {currentTab === 'library' && (
             <div className="p-4">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Library</h1>
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    const name = prompt('Enter effort name:')
-                    if (name) handleCreateGraph(name, '')
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  New
-                </Button>
               </div>
 
               {loading ? (
@@ -356,6 +345,16 @@ export default function Home() {
                       }}
                     />
                   ))}
+                  {/* New effort card */}
+                  <button
+                    onClick={() => {
+                      const name = prompt('Enter effort name:')
+                      if (name) handleCreateGraph(name, '')
+                    }}
+                    className="aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
+                  >
+                    <Plus className="h-8 w-8 text-gray-400 dark:text-slate-500" />
+                  </button>
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-slate-400">

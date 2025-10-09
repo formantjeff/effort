@@ -95,7 +95,7 @@ export async function GET(
                 size: 16,
               },
               padding: 15,
-              generateLabels: (chart: any) => {
+              generateLabels: (chart: { data: { labels?: string[]; datasets: Array<{ data: number[]; backgroundColor: string[] }> } }) => {
                 const data = chart.data
                 if (data.labels && data.datasets.length) {
                   return data.labels.map((label: string, i: number) => {
