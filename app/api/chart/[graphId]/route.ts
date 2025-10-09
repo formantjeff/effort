@@ -59,7 +59,7 @@ export async function GET(
       }
     })
 
-    const configuration = {
+    const configuration: any = {
       type: 'pie' as const,
       data: {
         labels: workstreams.map(w => w.name),
