@@ -9,15 +9,16 @@ export async function POST(request: NextRequest) {
     const command = formData.get('command') as string
     const text = formData.get('text') as string
     const slackUserId = formData.get('user_id') as string
+    const slackTeamId = formData.get('team_id') as string
 
-    console.log('Slash command received:', { command, text, slackUserId })
+    console.log('Slash command received:', { command, text, slackUserId, slackTeamId })
 
     // Verify the request is from Slack
     // TODO: Add signature verification
 
     switch (command) {
       case '/effort':
-        return await handleEffortCommand(text, slackUserId, request.nextUrl.origin)
+        return await handleEffortCommand(text, slackUserId, slackTeamId, request.nextUrl.origin)
       default:
         return NextResponse.json({
           response_type: 'ephemeral',
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleEffortCommand(text: string, slackUserId: string, origin: string) {
+async function handleEffortCommand(text: string, slackUserId: string, slackTeamId: string, origin: string) {
   const args = text.trim().split(' ')
   const subcommand = args[0]
 
@@ -46,7 +47,7 @@ async function handleEffortCommand(text: string, slackUserId: string, origin: st
     .single()
 
   if (!slackUser) {
-    const linkUrl = `${origin}/api/slack/link?slack_user_id=${slackUserId}`
+    const linkUrl = `${origin}/api/slack/link?slack_user_id=${slackUserId}&slack_team_id=${slackTeamId}`
     return NextResponse.json({
       response_type: 'ephemeral',
       text: '👋 Welcome to Effort! Please link your account to get started.',
@@ -55,7 +56,7 @@ async function handleEffortCommand(text: string, slackUserId: string, origin: st
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: '👋 *Welcome to Effort!*\n\nTo use the Effort app in Slack, you need to link your Slack account with your Effort account.',
+            text: '👋 *Welcome to Effort!*\n\nTo use the Effort app in Slack, you need to link your Slack account with your Effort account.\n\nClick the button below and log in to your Effort account to complete the link.',
           },
         },
         {
