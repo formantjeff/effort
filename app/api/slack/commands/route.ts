@@ -223,14 +223,16 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
   }
 
   // Get or create share link
-  let share = await supabase
+  const { data: existingShare } = await supabase
     .from('shared_efforts')
     .select('share_token')
     .eq('graph_id', graph.id)
     .eq('is_active', true)
     .single()
 
-  if (!share.data) {
+  let shareToken = existingShare?.share_token
+
+  if (!shareToken) {
     const { data: newShare } = await supabase
       .from('shared_efforts')
       .insert({
@@ -240,10 +242,10 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
       .select('share_token')
       .single()
 
-    share.data = newShare
+    shareToken = newShare?.share_token
   }
 
-  const shareUrl = share.data ? `${origin}/share/${share.data.share_token}` : undefined
+  const shareUrl = shareToken ? `${origin}/share/${shareToken}` : undefined
 
   const blocks = createEffortBlocks(graph.name, workstreams, shareUrl)
 
