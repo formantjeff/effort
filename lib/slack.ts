@@ -64,7 +64,7 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
   return await response.json()
 }
 
-export function createEffortBlocks(effortName: string, workstreams: Workstream[], shareUrl?: string): SlackBlock[] {
+export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, origin: string, shareUrl?: string): SlackBlock[] {
   const blocks: SlackBlock[] = [
     {
       type: 'header',
@@ -72,6 +72,11 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
         type: 'plain_text',
         text: effortName,
       },
+    },
+    {
+      type: 'image',
+      image_url: `${origin}/api/chart/${graphId}`,
+      alt_text: `${effortName} chart`,
     },
     {
       type: 'section',

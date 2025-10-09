@@ -176,7 +176,7 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   const shareUrl = share ? `${origin}/share/${share.share_token}` : undefined
 
-  const blocks = createEffortBlocks(graph.name, workstreams, shareUrl)
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, origin, shareUrl)
 
   return NextResponse.json({
     response_type: 'ephemeral',
@@ -248,7 +248,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
 
   const shareUrl = shareToken ? `${origin}/share/${shareToken}` : undefined
 
-  const blocks = createEffortBlocks(graph.name, workstreams, shareUrl)
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, origin, shareUrl)
 
   // Add attribution
   blocks.push({
