@@ -65,6 +65,8 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
 }
 
 export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string): SlackBlock[] {
+  const chartUrl = `${origin}/api/chart/${graphId}?userId=${userId}`
+
   const blocks: SlackBlock[] = [
     {
       type: 'header',
@@ -77,8 +79,13 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `📊 *Chart:* ${origin}/api/chart/${graphId}?userId=${userId}`,
+        text: `<${chartUrl}|📊 View Chart Image>`,
       },
+    },
+    {
+      type: 'image',
+      image_url: chartUrl,
+      alt_text: `${effortName} effort distribution chart`,
     },
     {
       type: 'section',
