@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     console.error('Error handling Slack command:', error)
     return NextResponse.json({
       response_type: 'ephemeral',
-      text: 'Sorry, something went wrong.',
+      text: `Sorry, something went wrong: ${error instanceof Error ? error.message : 'Unknown error'}`,
     })
   }
 }
