@@ -74,9 +74,11 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
       },
     },
     {
-      type: 'image',
-      image_url: `${origin}/api/chart/${graphId}?userId=${userId}`,
-      alt_text: `${effortName} chart`,
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `📊 *Chart:* ${origin}/api/chart/${graphId}?userId=${userId}`,
+      },
     },
     {
       type: 'section',
