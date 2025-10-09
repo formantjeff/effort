@@ -82,12 +82,52 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
       const url = `${window.location.origin}/share/${token}`
       setShareUrl(url)
 
-      // Copy to clipboard
-      await navigator.clipboard.writeText(url)
-      setCopiedLink(true)
-      setTimeout(() => setCopiedLink(false), 2000)
+      // Try native share first (mobile), then fall back to clipboard
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: title || 'Effort Distribution',
+            text: `Check out my effort allocation: ${title}`,
+            url: url,
+          })
+          // Success - show visual feedback
+          setCopiedLink(true)
+          setTimeout(() => setCopiedLink(false), 2000)
+        } catch (shareError) {
+          // User cancelled or share failed - try clipboard as fallback
+          if ((shareError as Error).name !== 'AbortError') {
+            await copyToClipboard(url)
+          }
+        }
+      } else {
+        // No native share - use clipboard
+        await copyToClipboard(url)
+      }
     } catch (error) {
       console.error('Error creating share:', error)
+    }
+  }
+
+  async function copyToClipboard(url: string) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(url)
+      } else {
+        // Fallback for older browsers or non-secure contexts
+        const textArea = document.createElement('textarea')
+        textArea.value = url
+        textArea.style.position = 'fixed'
+        textArea.style.left = '-999999px'
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+      }
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 2000)
+    } catch (clipboardError) {
+      console.error('Error copying to clipboard:', clipboardError)
+      alert(`Share link created: ${url}`)
     }
   }
 
