@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+import { createServiceClient } from '@/lib/supabase-service'
 import { createEffortBlocks } from '@/lib/slack'
 
 // Slack Slash Commands endpoint
@@ -38,8 +38,8 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
   const args = text.trim().split(' ')
   const subcommand = args[0]
 
-  // Check if user is linked
-  const supabase = await createClient()
+  // Check if user is linked (use service client to bypass RLS)
+  const supabase = createServiceClient()
   const { data: slackUser } = await supabase
     .from('slack_users')
     .select('user_id')
@@ -104,7 +104,7 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
 }
 
 async function listEfforts(userId: string, origin: string) {
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   const { data: graphs, error } = await supabase
     .from('effort_graphs')
@@ -135,7 +135,7 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
     })
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // Find effort by name
   const { data: graph } = await supabase
@@ -192,7 +192,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
     })
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   // Find effort by name
   const { data: graph } = await supabase
