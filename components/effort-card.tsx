@@ -28,18 +28,18 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
       onClick={onClick}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem] text-gray-900 dark:text-white">{name}</CardTitle>
+        <CardTitle className="text-base line-clamp-1 text-gray-900 dark:text-white">{name}</CardTitle>
       </CardHeader>
-      <CardContent className="pb-6">
-        <div className="h-[150px] flex items-center justify-center">
+      <CardContent className="pb-4">
+        <div className="h-[100px] flex items-center justify-center">
           {data.length > 0 ? (
-            <ResponsiveContainer width="100%" height={150}>
+            <ResponsiveContainer width="100%" height={100}>
               <PieChart>
                 <Pie
                   data={data}
                   cx="50%"
                   cy="50%"
-                  outerRadius={60}
+                  outerRadius={40}
                   fill="#8884d8"
                   dataKey="value"
                 >
