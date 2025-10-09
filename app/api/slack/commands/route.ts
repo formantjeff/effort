@@ -180,6 +180,7 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   return NextResponse.json({
     response_type: 'ephemeral',
+    text: `Effort: ${graph.name}`, // Fallback text required when using blocks
     blocks,
   })
 }
@@ -263,6 +264,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
 
   return NextResponse.json({
     response_type: 'in_channel',
+    text: `Effort: ${graph.name}`, // Fallback text required when using blocks
     blocks,
   })
 }
