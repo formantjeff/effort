@@ -30,25 +30,27 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
       <CardHeader className="pb-2 flex-shrink-0">
         <CardTitle className="text-base line-clamp-1 text-gray-900 dark:text-white">{name}</CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex items-center justify-center pb-4">
+      <CardContent className="flex-1 flex items-center justify-center pb-4 pt-0">
         {data.length > 0 ? (
-          <div className="w-full h-full max-h-[120px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  outerRadius="60%"
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="w-32 h-32">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    cx="50%"
+                    cy="50%"
+                    outerRadius="100%"
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {data.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         ) : (
           <p className="text-gray-500 dark:text-slate-400 text-sm">No workstreams</p>

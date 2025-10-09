@@ -128,6 +128,39 @@ export async function GET(
 
     const image = await chartCallback.renderToBuffer(configuration as never)
 
+    // Track Slack view
+    try {
+      // Log the view
+      await supabase.from('effort_view_logs').insert({
+        graph_id: graphId,
+        source: 'slack',
+        viewer_user_id: userId || null,
+      })
+
+      // Get current counts and increment
+      const { data: shareData } = await supabase
+        .from('shared_efforts')
+        .select('slack_view_count, view_count')
+        .eq('graph_id', graphId)
+        .eq('is_active', true)
+        .single()
+
+      if (shareData) {
+        await supabase
+          .from('shared_efforts')
+          .update({
+            slack_view_count: shareData.slack_view_count + 1,
+            view_count: shareData.view_count + 1,
+            last_viewed_at: new Date().toISOString(),
+          })
+          .eq('graph_id', graphId)
+          .eq('is_active', true)
+      }
+    } catch (error) {
+      // Don't fail the request if tracking fails
+      console.error('Error tracking view:', error)
+    }
+
     return new NextResponse(Buffer.from(image), {
       headers: {
         'Content-Type': 'image/png',
