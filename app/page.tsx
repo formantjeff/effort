@@ -353,7 +353,9 @@ export default function Home() {
                     }}
                     className="aspect-square rounded-lg border-2 border-dashed border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors flex items-center justify-center"
                   >
-                    <Plus className="h-8 w-8 text-gray-400 dark:text-slate-500" />
+                    <div className="w-16 h-16 rounded-full bg-gray-300 dark:bg-slate-600 flex items-center justify-center">
+                      <Plus className="h-8 w-8 text-gray-600 dark:text-slate-400" />
+                    </div>
                   </button>
                 </div>
               ) : (
