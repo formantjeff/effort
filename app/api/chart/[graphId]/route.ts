@@ -59,7 +59,7 @@ export async function GET(
       }
     })
 
-    const configuration: any = {
+    const configuration = {
       type: 'pie' as const,
       data: {
         labels: workstreams.map(w => w.name),
@@ -95,7 +95,8 @@ export async function GET(
                 size: 16,
               },
               padding: 15,
-              generateLabels: (chart: { data: { labels?: string[]; datasets: Array<{ data: number[]; backgroundColor: string[] }> } }) => {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              generateLabels: (chart: any) => {
                 const data = chart.data
                 if (data.labels && data.datasets.length) {
                   return data.labels.map((label: string, i: number) => {
@@ -125,7 +126,7 @@ export async function GET(
       },
     }
 
-    const image = await chartCallback.renderToBuffer(configuration)
+    const image = await chartCallback.renderToBuffer(configuration as never)
 
     return new NextResponse(image, {
       headers: {
