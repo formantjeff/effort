@@ -12,7 +12,7 @@ import { useAuth } from '@/components/auth-provider'
 import { createClient } from '@/lib/supabase-browser'
 import { Workstream, EffortGraph, GraphWithPermission } from '@/lib/supabase'
 import { Plus } from 'lucide-react'
-import { motion, AnimatePresence, PanInfo } from 'framer-motion'
+import { motion, PanInfo } from 'framer-motion'
 
 // Color palette for workstreams
 const COLORS = [

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import { InteractivePieChart } from './interactive-pie-chart'
 import { Workstream } from '@/lib/supabase'
-import { Pencil, Share2, Copy, Check } from 'lucide-react'
+import { Pencil, Share2, Check } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
 
 interface EffortPieChartProps {
@@ -19,7 +19,6 @@ interface EffortPieChartProps {
 }
 
 export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEditing, title = 'Effort Distribution', graphId }: EffortPieChartProps) {
-  const [shareUrl, setShareUrl] = useState<string | null>(null)
   const [copiedLink, setCopiedLink] = useState(false)
   const supabase = createClient()
   const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
@@ -80,7 +79,6 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
       }
 
       const url = `${window.location.origin}/share/${token}`
-      setShareUrl(url)
 
       // Try native share first (mobile), then fall back to clipboard
       if (navigator.share) {

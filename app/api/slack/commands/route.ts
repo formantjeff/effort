@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
 
 // Slack Slash Commands endpoint
 export async function POST(request: NextRequest) {
@@ -8,8 +7,6 @@ export async function POST(request: NextRequest) {
     const command = formData.get('command') as string
     const text = formData.get('text') as string
     const userId = formData.get('user_id') as string
-    const channelId = formData.get('channel_id') as string
-    const responseUrl = formData.get('response_url') as string
 
     console.log('Slash command received:', { command, text, userId })
 
@@ -18,7 +15,7 @@ export async function POST(request: NextRequest) {
 
     switch (command) {
       case '/effort':
-        return await handleEffortCommand(text, userId, responseUrl)
+        return await handleEffortCommand(text, userId)
       default:
         return NextResponse.json({
           response_type: 'ephemeral',
@@ -34,15 +31,15 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleEffortCommand(text: string, userId: string, responseUrl: string) {
+async function handleEffortCommand(text: string, userId: string) {
   const args = text.trim().split(' ')
   const subcommand = args[0]
 
   switch (subcommand) {
     case 'list':
-      return await listEfforts(userId)
+      return await listEfforts()
     case 'view':
-      return await viewEffort(args[1], userId)
+      return await viewEffort(args[1])
     case 'share':
       return await shareEffort(args[1], userId)
     case 'help':
@@ -58,7 +55,7 @@ async function handleEffortCommand(text: string, userId: string, responseUrl: st
   }
 }
 
-async function listEfforts(userId: string) {
+async function listEfforts() {
   // TODO: Map Slack user ID to app user ID
   // TODO: Fetch user's efforts from database
 
@@ -68,7 +65,7 @@ async function listEfforts(userId: string) {
   })
 }
 
-async function viewEffort(effortName: string, userId: string) {
+async function viewEffort(effortName: string) {
   // TODO: Fetch effort data and create visualization
 
   return NextResponse.json({

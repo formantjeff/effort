@@ -7,6 +7,17 @@ export interface SlackConfig {
   clientSecret: string
 }
 
+interface SlackBlock {
+  type: string
+  [key: string]: unknown
+}
+
+interface Workstream {
+  name: string
+  effort: number
+  [key: string]: unknown
+}
+
 export function getSlackConfig(): SlackConfig {
   return {
     botToken: process.env.SLACK_BOT_TOKEN || '',
@@ -16,7 +27,7 @@ export function getSlackConfig(): SlackConfig {
   }
 }
 
-export async function postToSlack(channel: string, blocks: any[]) {
+export async function postToSlack(channel: string, blocks: SlackBlock[]) {
   const config = getSlackConfig()
 
   const response = await fetch('https://slack.com/api/chat.postMessage', {
@@ -34,7 +45,7 @@ export async function postToSlack(channel: string, blocks: any[]) {
   return await response.json()
 }
 
-export async function updateSlackMessage(channel: string, ts: string, blocks: any[]) {
+export async function updateSlackMessage(channel: string, ts: string, blocks: SlackBlock[]) {
   const config = getSlackConfig()
 
   const response = await fetch('https://slack.com/api/chat.update', {
@@ -53,8 +64,8 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: an
   return await response.json()
 }
 
-export function createEffortBlocks(effortName: string, workstreams: any[], shareUrl?: string) {
-  const blocks: any[] = [
+export function createEffortBlocks(effortName: string, workstreams: Workstream[], shareUrl?: string): SlackBlock[] {
+  const blocks: SlackBlock[] = [
     {
       type: 'header',
       text: {

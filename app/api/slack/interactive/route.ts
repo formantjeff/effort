@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+interface SlackInteractivePayload {
+  type: string
+  actions?: Array<{ action_id: string; [key: string]: unknown }>
+  [key: string]: unknown
+}
+
 // Slack Interactive Components endpoint (buttons, modals, etc.)
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
-    const payload = JSON.parse(formData.get('payload') as string)
+    const payload = JSON.parse(formData.get('payload') as string) as SlackInteractivePayload
 
     console.log('Interactive component:', payload)
 
@@ -22,7 +28,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleBlockActions(payload: any) {
+async function handleBlockActions(payload: SlackInteractivePayload) {
+  if (!payload.actions || payload.actions.length === 0) {
+    return NextResponse.json({ ok: true })
+  }
+
   const action = payload.actions[0]
 
   switch (action.action_id) {
@@ -39,7 +49,7 @@ async function handleBlockActions(payload: any) {
   return NextResponse.json({ ok: true })
 }
 
-async function handleViewSubmission(payload: any) {
+async function handleViewSubmission(payload: SlackInteractivePayload) {
   // Handle modal submissions
   console.log('View submission:', payload)
   return NextResponse.json({ ok: true })
