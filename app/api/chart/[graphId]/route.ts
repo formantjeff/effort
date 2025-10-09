@@ -8,12 +8,15 @@ export async function GET(
 ) {
   try {
     const { graphId } = await params
+    const { searchParams } = request.nextUrl
+    const userId = searchParams.get('userId')
+
     const supabase = createServiceClient()
 
     // Get graph and workstreams
     const { data: graph } = await supabase
       .from('effort_graphs')
-      .select('name')
+      .select('name, author_id')
       .eq('id', graphId)
       .single()
 
@@ -31,11 +34,21 @@ export async function GET(
       return new NextResponse('No workstreams found', { status: 404 })
     }
 
-    // Create chart with neutral background that works in both light and dark Slack
+    // Get user's theme preference (use requesting user if provided, otherwise graph author)
+    const lookupUserId = userId || graph.author_id
+    const { data: preferences } = await supabase
+      .from('user_preferences')
+      .select('theme')
+      .eq('user_id', lookupUserId)
+      .single()
+
+    const theme = preferences?.theme || 'dark'
+
+    // Create chart with user's preferred theme
     const width = 800
     const height = 500
-    const bgColor = '#1a1a1a' // Dark background similar to your app
-    const textColor = '#e5e5e5' // Light text
+    const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff'
+    const textColor = theme === 'dark' ? '#e5e5e5' : '#1a1a1a'
 
     const chartCallback = new ChartJSNodeCanvas({
       width,
