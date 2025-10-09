@@ -128,7 +128,7 @@ export async function GET(
 
     const image = await chartCallback.renderToBuffer(configuration as never)
 
-    return new NextResponse(image, {
+    return new NextResponse(Buffer.from(image), {
       headers: {
         'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
