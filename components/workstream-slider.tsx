@@ -44,6 +44,7 @@ export function WorkstreamSlider({
                 onChange={(e) => onUpdateName(workstream.id, e.target.value)}
                 className="w-40 font-medium text-sm bg-white dark:bg-slate-600 border-gray-300 dark:border-slate-500 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-400"
                 placeholder="Workstream name"
+                autoCapitalize="sentences"
               />
               <Slider
                 value={[workstream.effort]}

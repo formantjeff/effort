@@ -90,10 +90,6 @@ Effort is a mobile-first web application for managing and visualizing team works
 - [ ] RLS policies temporarily disabled (see migration `20251007203000_disable_rls_temporarily.sql`)
 - [ ] Permission sharing UI not yet implemented (backend foundation exists)
 - [ ] Mobile-first redesign: graph tiles in grid layout (mentioned but not implemented)
-- [ ] **URGENT**: Run storage migration in Supabase SQL Editor for Slack chart images to work
-  - Migration file: `supabase/migrations/20251009000002_create_chart_storage.sql`
-  - This creates the `effort-charts` bucket for storing chart images
-  - Required for inline chart display in Slack integration
 
 ## Development Commands
 ```bash
