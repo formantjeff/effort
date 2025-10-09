@@ -37,7 +37,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
   ]
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 safe-area-inset-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700 safe-area-inset-bottom">
       <div className="flex items-center justify-around h-16">
         {tabs.map((tab) => (
           <button
@@ -46,7 +46,7 @@ export function BottomNav({ currentTab, onTabChange }: BottomNavProps) {
             className={`flex flex-col items-center justify-center flex-1 h-full transition-colors ${
               currentTab === tab.id
                 ? 'text-blue-500'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200'
             }`}
           >
             <div className="mb-1">{tab.icon}</div>

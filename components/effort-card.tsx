@@ -24,11 +24,11 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:shadow-lg transition-shadow bg-slate-800 border-slate-700"
+      className="cursor-pointer hover:shadow-lg transition-shadow bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700"
       onClick={onClick}
     >
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem] text-white">{name}</CardTitle>
+        <CardTitle className="text-lg line-clamp-2 min-h-[3.5rem] text-gray-900 dark:text-white">{name}</CardTitle>
       </CardHeader>
       <CardContent className="pb-6">
         <div className="h-[150px] flex items-center justify-center">
@@ -50,7 +50,7 @@ export function EffortCard({ name, workstreams, onClick }: EffortCardProps) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <p className="text-slate-400 text-sm">No workstreams</p>
+            <p className="text-gray-500 dark:text-slate-400 text-sm">No workstreams</p>
           )}
         </div>
       </CardContent>

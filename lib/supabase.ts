@@ -37,3 +37,14 @@ export interface GraphPermission {
 export interface GraphWithPermission extends EffortGraph {
   permission?: PermissionLevel | 'owner'
 }
+
+export interface SharedEffort {
+  id: string
+  graph_id: string
+  share_token: string
+  created_by: string
+  view_count: number
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}

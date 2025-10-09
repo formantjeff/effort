@@ -12,6 +12,7 @@ import { useAuth } from '@/components/auth-provider'
 import { createClient } from '@/lib/supabase-browser'
 import { Workstream, EffortGraph, GraphWithPermission } from '@/lib/supabase'
 import { Plus } from 'lucide-react'
+import { motion, AnimatePresence, PanInfo } from 'framer-motion'
 
 // Color palette for workstreams
 const COLORS = [
@@ -34,6 +35,7 @@ export default function Home() {
   const [isEditing, setIsEditing] = useState(false)
   const [currentTab, setCurrentTab] = useState<'effort' | 'library' | 'account'>('library')
   const [allWorkstreams, setAllWorkstreams] = useState<Record<string, Workstream[]>>({})
+  const [swipeDirection, setSwipeDirection] = useState<number>(0)
   const supabase = createClient()
 
   // Load user's graphs and reset to library view on login
@@ -250,24 +252,57 @@ export default function Home() {
     }
   }
 
+  function handleSwipe(direction: number) {
+    if (!currentGraph || graphs.length === 0) return
+
+    const currentIndex = graphs.findIndex((g) => g.id === currentGraph.id)
+    let nextIndex = currentIndex + direction
+
+    // Wrap around
+    if (nextIndex < 0) nextIndex = graphs.length - 1
+    if (nextIndex >= graphs.length) nextIndex = 0
+
+    setSwipeDirection(direction)
+    setCurrentGraph(graphs[nextIndex])
+  }
+
   return (
     <AuthGate>
       <div className="min-h-screen bg-white dark:bg-black pb-20">
         <div className="max-w-7xl mx-auto">
           {currentTab === 'effort' && (
-            <div className="p-4">
+            <div className="p-4 overflow-hidden">
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p className="text-slate-400">Loading...</p>
+                  <p className="text-gray-500 dark:text-slate-400">Loading...</p>
                 </div>
               ) : currentGraph ? (
-                <div className="space-y-4">
+                <motion.div
+                  key={currentGraph.id}
+                  initial={{ x: swipeDirection * 100 + '%', opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  exit={{ x: swipeDirection * -100 + '%', opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                  drag="x"
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(event, info: PanInfo) => {
+                    const threshold = 50
+                    if (info.offset.x > threshold) {
+                      handleSwipe(-1) // Swipe right = go to previous
+                    } else if (info.offset.x < -threshold) {
+                      handleSwipe(1) // Swipe left = go to next
+                    }
+                  }}
+                  className="space-y-4"
+                >
                   <EffortPieChart
                     workstreams={workstreams}
                     onEditClick={() => setIsEditing(!isEditing)}
                     onUpdateEffort={handleUpdateEffort}
                     isEditing={isEditing}
                     title={currentGraph.name}
+                    graphId={currentGraph.id}
                   />
                   {isEditing && (
                     <WorkstreamSlider
@@ -278,9 +313,9 @@ export default function Home() {
                       onUpdateName={handleUpdateName}
                     />
                   )}
-                </div>
+                </motion.div>
               ) : (
-                <div className="flex items-center justify-center h-64 text-slate-400">
+                <div className="flex items-center justify-center h-64 text-gray-500 dark:text-slate-400">
                   <p>Create your first effort graph to get started!</p>
                 </div>
               )}
@@ -290,7 +325,7 @@ export default function Home() {
           {currentTab === 'library' && (
             <div className="p-4">
               <div className="flex items-center justify-between mb-6">
-                <h1 className="text-2xl font-bold text-white">Library</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Library</h1>
                 <Button
                   size="sm"
                   onClick={() => {
@@ -306,7 +341,7 @@ export default function Home() {
 
               {loading ? (
                 <div className="flex items-center justify-center h-64">
-                  <p className="text-slate-400">Loading...</p>
+                  <p className="text-gray-500 dark:text-slate-400">Loading...</p>
                 </div>
               ) : graphs.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4">
@@ -323,7 +358,7 @@ export default function Home() {
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-slate-400">
+                <div className="flex flex-col items-center justify-center h-64 text-gray-500 dark:text-slate-400">
                   <p className="mb-4">No efforts yet</p>
                   <Button
                     onClick={() => {
