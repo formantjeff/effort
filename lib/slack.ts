@@ -77,13 +77,11 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   ]
 
-  // Temporarily use link instead of inline image while debugging
+  // Test with a hardcoded image to verify inline images work
   blocks.push({
-    type: 'section',
-    text: {
-      type: 'mrkdwn',
-      text: `<${chartUrl}|📊 View Chart>`,
-    },
+    type: 'image',
+    image_url: 'https://picsum.photos/800/500',
+    alt_text: `${effortName} effort distribution chart`,
   })
 
   blocks.push({
