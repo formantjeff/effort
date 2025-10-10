@@ -44,7 +44,26 @@ export async function GET(
 
     const theme = preferences?.theme || 'dark'
 
-    // Create chart with user's preferred theme
+    // Check if pre-generated chart exists in storage FIRST
+    const fileName = `${graph.author_id}/${graphId}-${theme}.png`
+    const { data: existingFile } = await supabase
+      .storage
+      .from('effort-charts')
+      .list(graph.author_id, {
+        search: `${graphId}-${theme}.png`
+      })
+
+    // If pre-generated chart exists, redirect to it for faster response
+    if (existingFile && existingFile.length > 0) {
+      const { data: { publicUrl } } = supabase
+        .storage
+        .from('effort-charts')
+        .getPublicUrl(fileName)
+
+      return NextResponse.redirect(publicUrl)
+    }
+
+    // Otherwise, generate chart on the fly
     const width = 800
     const height = 500
     const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff'
@@ -127,25 +146,6 @@ export async function GET(
     }
 
     const image = await chartCallback.renderToBuffer(configuration as never)
-
-    // Check if pre-generated chart exists in storage
-    const fileName = `${graph.author_id}/${graphId}-${theme}.png`
-    const { data: existingFile } = await supabase
-      .storage
-      .from('effort-charts')
-      .list(graph.author_id, {
-        search: `${graphId}-${theme}.png`
-      })
-
-    // If pre-generated chart exists, redirect to it for faster response
-    if (existingFile && existingFile.length > 0) {
-      const { data: { publicUrl } } = supabase
-        .storage
-        .from('effort-charts')
-        .getPublicUrl(fileName)
-
-      return NextResponse.redirect(publicUrl)
-    }
 
     // Otherwise generate on the fly and cache it
     const { error: uploadError } = await supabase
