@@ -77,10 +77,10 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   ]
 
-  // Test with a hardcoded image to verify inline images work
+  // Use the chart URL - it should be pre-rendered and ready
   blocks.push({
     type: 'image',
-    image_url: 'https://picsum.photos/800/500',
+    image_url: chartUrl,
     alt_text: `${effortName} effort distribution chart`,
   })
 

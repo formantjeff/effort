@@ -73,6 +73,28 @@ export default function Home() {
     }
   }, [workstreams.length])
 
+  // Pre-generate chart when user closes edit mode
+  useEffect(() => {
+    if (!isEditing && currentGraph && workstreams.length > 0) {
+      // Only pre-generate if we just closed edit mode (not on initial load)
+      const preGenerateChart = async () => {
+        try {
+          await fetch('/api/chart/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              graphId: currentGraph.id,
+              userId: user?.id
+            }),
+          })
+        } catch (error) {
+          console.error('Error pre-generating chart:', error)
+        }
+      }
+      preGenerateChart()
+    }
+  }, [isEditing, currentGraph, user, workstreams.length])
+
   async function loadGraphs() {
     try {
       // Get graphs owned by user
