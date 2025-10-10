@@ -8,7 +8,8 @@ const nextConfig: NextConfig = {
         config.externals.push('canvas');
       } else if (typeof config.externals === 'function') {
         const origExternals = config.externals;
-        config.externals = async (context, request, callback) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        config.externals = async (context: any, request: any, callback: any) => {
           if (request === 'canvas') {
             return callback(undefined, 'commonjs canvas');
           }
