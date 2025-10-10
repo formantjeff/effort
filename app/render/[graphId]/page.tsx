@@ -112,7 +112,7 @@ export default function RenderPage({ params, searchParams }: RenderPageProps) {
       </head>
       <body>
         <h1>{graphName}</h1>
-        <div style={{ width: '800px', height: '500px' }}>
+        <div style={{ width: '800px', height: '400px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -122,19 +122,15 @@ export default function RenderPage({ params, searchParams }: RenderPageProps) {
                 labelLine={false}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 label={(entry: any) => `${entry.value.toFixed(1)}%`}
-                outerRadius={150}
+                outerRadius={120}
+                fill="#8884d8"
                 dataKey="value"
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
                 ))}
               </Pie>
-              <Legend
-                wrapperStyle={{
-                  color: textColor,
-                  fontSize: '16px'
-                }}
-              />
+              <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
