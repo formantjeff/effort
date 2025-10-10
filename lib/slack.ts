@@ -64,8 +64,8 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
   return await response.json()
 }
 
-export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string): SlackBlock[] {
-  const chartUrl = `${origin}/api/chart/${graphId}?userId=${userId}`
+export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string, chartImageUrl?: string): SlackBlock[] {
+  const chartUrl = chartImageUrl || `${origin}/api/chart/${graphId}?userId=${userId}`
 
   const blocks: SlackBlock[] = [
     {
@@ -75,21 +75,32 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
         text: effortName,
       },
     },
-    {
+  ]
+
+  // Add image block if we have a direct URL, otherwise fallback to link
+  if (chartImageUrl) {
+    blocks.push({
+      type: 'image',
+      image_url: chartImageUrl,
+      alt_text: `${effortName} effort distribution chart`,
+    })
+  } else {
+    blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: `<${chartUrl}|View Chart Image>`,
       },
+    })
+  }
+
+  blocks.push({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: '*Workstream Distribution:*',
     },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Workstream Distribution:*',
-      },
-    },
-  ]
+  })
 
   // Add workstream breakdown - combine into fewer blocks to avoid hitting Slack's limits
   const workstreamText = workstreams

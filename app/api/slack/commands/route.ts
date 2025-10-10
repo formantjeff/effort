@@ -1,6 +1,95 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase-service'
 import { createEffortBlocks } from '@/lib/slack'
+import { ChartJSNodeCanvas } from 'chartjs-node-canvas'
+
+// Generate chart and return public URL
+async function generateChartUrl(graphId: string, graphName: string, workstreams: any[], userId: string): Promise<string | null> {
+  try {
+    const supabase = createServiceClient()
+
+    // Simple dark theme chart
+    const width = 800
+    const height = 500
+    const bgColor = '#1a1a1a'
+    const textColor = '#e5e5e5'
+
+    const chartCallback = new ChartJSNodeCanvas({
+      width,
+      height,
+      backgroundColour: bgColor,
+    })
+
+    const configuration = {
+      type: 'pie' as const,
+      data: {
+        labels: workstreams.map(w => w.name),
+        datasets: [{
+          data: workstreams.map(w => w.effort),
+          backgroundColor: workstreams.map(w => w.color),
+          borderWidth: 3,
+          borderColor: bgColor,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          title: {
+            display: true,
+            text: graphName,
+            color: textColor,
+            font: {
+              size: 24,
+              weight: 'bold' as const,
+            },
+            padding: { top: 20, bottom: 20 },
+          },
+          legend: {
+            position: 'right' as const,
+            labels: {
+              color: textColor,
+              font: { size: 16 },
+              padding: 15,
+            },
+          },
+        },
+        layout: {
+          padding: { top: 10, bottom: 10, left: 20, right: 20 },
+        },
+      },
+    }
+
+    const image = await chartCallback.renderToBuffer(configuration as never)
+
+    // Upload to Supabase Storage
+    const fileName = `${userId}/${graphId}-slack-${Date.now()}.png`
+    const { error: uploadError } = await supabase
+      .storage
+      .from('effort-charts')
+      .upload(fileName, Buffer.from(image), {
+        contentType: 'image/png',
+        upsert: true,
+        cacheControl: '300',
+      })
+
+    if (uploadError) {
+      console.error('Error uploading chart:', uploadError)
+      return null
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase
+      .storage
+      .from('effort-charts')
+      .getPublicUrl(fileName)
+
+    return publicUrl
+  } catch (error) {
+    console.error('Error generating chart:', error)
+    return null
+  }
+}
 
 // Slack Slash Commands endpoint
 export async function POST(request: NextRequest) {
@@ -176,7 +265,10 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   const shareUrl = share ? `${origin}/share/${share.share_token}` : undefined
 
-  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
+  // Generate chart and get direct URL for Slack
+  const chartImageUrl = await generateChartUrl(graph.id, graph.name, workstreams, userId)
+
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl, chartImageUrl)
 
   return NextResponse.json({
     response_type: 'ephemeral',
@@ -249,7 +341,10 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
 
   const shareUrl = shareToken ? `${origin}/share/${shareToken}` : undefined
 
-  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
+  // Generate chart and get direct URL for Slack
+  const chartImageUrl = await generateChartUrl(graph.id, graph.name, workstreams, userId)
+
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl, chartImageUrl)
 
   // Add attribution
   blocks.push({
