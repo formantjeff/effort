@@ -95,7 +95,7 @@ export default async function RenderPage({ params, searchParams }: PageProps) {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(props: {value: number}) => `${props.value.toFixed(1)}%`}
+                label={(entry) => `${entry.value.toFixed(1)}%`}
                 outerRadius={150}
                 dataKey="value"
               >
