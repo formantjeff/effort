@@ -1,8 +1,16 @@
-import { createServiceClient } from '@/lib/supabase-service'
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
-import { notFound } from 'next/navigation'
+'use client'
 
-interface PageProps {
+import { useEffect, useState } from 'react'
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend } from 'recharts'
+import { createClient } from '@/lib/supabase-browser'
+
+interface ChartData {
+  name: string
+  value: number
+  color: string
+}
+
+interface RenderPageProps {
   params: Promise<{
     graphId: string
   }>
@@ -12,54 +20,70 @@ interface PageProps {
   }>
 }
 
-export default async function RenderPage({ params, searchParams }: PageProps) {
-  const { graphId } = await params
-  const { userId, theme: urlTheme } = await searchParams
+export default function RenderPage({ params, searchParams }: RenderPageProps) {
+  const [data, setData] = useState<ChartData[]>([])
+  const [graphName, setGraphName] = useState<string>('')
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+  const [loading, setLoading] = useState(true)
 
-  const supabase = createServiceClient()
+  useEffect(() => {
+    async function loadData() {
+      const { graphId } = await params
+      const { userId, theme: urlTheme } = await searchParams
+      const supabase = createClient()
 
-  // Get graph and workstreams
-  const { data: graph } = await supabase
-    .from('effort_graphs')
-    .select('name, author_id')
-    .eq('id', graphId)
-    .single()
+      // Get graph and workstreams
+      const { data: graph } = await supabase
+        .from('effort_graphs')
+        .select('name, author_id')
+        .eq('id', graphId)
+        .single()
 
-  if (!graph) {
-    notFound()
+      if (!graph) return
+
+      const { data: workstreams } = await supabase
+        .from('workstreams')
+        .select('name, effort, color')
+        .eq('graph_id', graphId)
+        .order('created_at', { ascending: true })
+
+      if (!workstreams || workstreams.length === 0) return
+
+      // Get user's theme preference
+      const lookupUserId = userId || graph.author_id
+      const { data: preferences } = await supabase
+        .from('user_preferences')
+        .select('theme')
+        .eq('user_id', lookupUserId)
+        .single()
+
+      const userTheme = urlTheme || preferences?.theme || 'dark'
+
+      // Calculate data for chart
+      const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
+      const chartData = workstreams
+        .filter((ws) => ws.effort > 0)
+        .map((ws) => ({
+          name: ws.name,
+          value: totalEffort > 0 ? (ws.effort / totalEffort) * 100 : 0,
+          color: ws.color,
+        }))
+
+      setGraphName(graph.name)
+      setData(chartData)
+      setTheme(userTheme)
+      setLoading(false)
+    }
+
+    loadData()
+  }, [params, searchParams])
+
+  if (loading) {
+    return <div>Loading...</div>
   }
 
-  const { data: workstreams } = await supabase
-    .from('workstreams')
-    .select('name, effort, color')
-    .eq('graph_id', graphId)
-    .order('created_at', { ascending: true })
-
-  if (!workstreams || workstreams.length === 0) {
-    notFound()
-  }
-
-  // Get user's theme preference
-  const lookupUserId = userId || graph.author_id
-  const { data: preferences } = await supabase
-    .from('user_preferences')
-    .select('theme')
-    .eq('user_id', lookupUserId)
-    .single()
-
-  const theme = urlTheme || preferences?.theme || 'dark'
   const bgColor = theme === 'dark' ? '#1a1a1a' : '#ffffff'
   const textColor = theme === 'dark' ? '#e5e5e5' : '#1a1a1a'
-
-  // Calculate data for chart
-  const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
-  const data = workstreams
-    .filter((ws) => ws.effort > 0)
-    .map((ws) => ({
-      name: ws.name,
-      value: totalEffort > 0 ? (ws.effort / totalEffort) * 100 : 0,
-      color: ws.color,
-    }))
 
   return (
     <html>
@@ -86,7 +110,7 @@ export default async function RenderPage({ params, searchParams }: PageProps) {
         `}</style>
       </head>
       <body>
-        <h1>{graph.name}</h1>
+        <h1>{graphName}</h1>
         <div style={{ width: '800px', height: '500px' }}>
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
