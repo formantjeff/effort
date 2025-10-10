@@ -77,11 +77,13 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   ]
 
-  // Always use inline image - the chart endpoint returns the image directly now
+  // Temporarily use link instead of inline image while debugging
   blocks.push({
-    type: 'image',
-    image_url: chartUrl,
-    alt_text: `${effortName} effort distribution chart`,
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text: `<${chartUrl}|📊 View Chart>`,
+    },
   })
 
   blocks.push({
