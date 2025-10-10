@@ -3,8 +3,14 @@ import { createServiceClient } from '@/lib/supabase-service'
 import { createEffortBlocks } from '@/lib/slack'
 import { ChartJSNodeCanvas } from 'chartjs-node-canvas'
 
+interface WorkstreamData {
+  name: string
+  effort: number
+  color: string
+}
+
 // Generate chart and return public URL
-async function generateChartUrl(graphId: string, graphName: string, workstreams: any[], userId: string): Promise<string | null> {
+async function generateChartUrl(graphId: string, graphName: string, workstreams: WorkstreamData[], userId: string): Promise<string | null> {
   try {
     const supabase = createServiceClient()
 
