@@ -150,12 +150,6 @@ export async function GET(
       })
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase
-      .storage
-      .from('effort-charts')
-      .getPublicUrl(fileName)
-
     // Track Slack view
     try {
       // Log the view
@@ -189,8 +183,13 @@ export async function GET(
       console.error('Error tracking view:', error)
     }
 
-    // Redirect to the public URL
-    return NextResponse.redirect(publicUrl)
+    // Return the image directly
+    return new NextResponse(Buffer.from(image), {
+      headers: {
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=300',
+      },
+    })
   } catch (error) {
     console.error('Error generating chart:', error)
     return new NextResponse('Error generating chart', { status: 500 })

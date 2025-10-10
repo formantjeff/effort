@@ -271,10 +271,7 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   const shareUrl = share ? `${origin}/share/${share.share_token}` : undefined
 
-  // Generate chart and get direct URL for Slack
-  const chartImageUrl = await generateChartUrl(graph.id, graph.name, workstreams, userId)
-
-  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl, chartImageUrl || undefined)
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
 
   return NextResponse.json({
     response_type: 'ephemeral',
@@ -347,10 +344,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
 
   const shareUrl = shareToken ? `${origin}/share/${shareToken}` : undefined
 
-  // Generate chart and get direct URL for Slack
-  const chartImageUrl = await generateChartUrl(graph.id, graph.name, workstreams, userId)
-
-  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl, chartImageUrl || undefined)
+  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
 
   // Add attribution
   blocks.push({
