@@ -65,34 +65,8 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
 }
 
 export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string): SlackBlock[] {
-  // Use QuickChart.io for reliable chart generation
-  const chartData = {
-    type: 'pie',
-    data: {
-      labels: workstreams.map(w => `${w.name}: ${w.effort.toFixed(1)}%`),
-      datasets: [{
-        data: workstreams.map(w => w.effort),
-        backgroundColor: workstreams.map(w => w.color),
-      }],
-    },
-    options: {
-      plugins: {
-        legend: {
-          position: 'right',
-        },
-        title: {
-          display: true,
-          text: effortName,
-          font: {
-            size: 18,
-          },
-        },
-      },
-    },
-  }
-
-  const chartConfig = encodeURIComponent(JSON.stringify(chartData))
-  const chartUrl = `https://quickchart.io/chart?c=${chartConfig}&w=600&h=400&bkg=white`
+  // Use our Puppeteer-based screenshot endpoint for custom styled charts
+  const chartUrl = `${origin}/api/chart/screenshot?graphId=${graphId}&userId=${userId}`
 
   const blocks: SlackBlock[] = [
     {
@@ -104,7 +78,7 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   ]
 
-  // Use QuickChart.io URL for inline chart
+  // Use screenshot endpoint for inline chart
   blocks.push({
     type: 'image',
     image_url: chartUrl,
