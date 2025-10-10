@@ -95,7 +95,8 @@ export default async function RenderPage({ params, searchParams }: PageProps) {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={(entry) => `${entry.value.toFixed(1)}%`}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                label={(entry: any) => `${entry.value.toFixed(1)}%`}
                 outerRadius={150}
                 dataKey="value"
               >
