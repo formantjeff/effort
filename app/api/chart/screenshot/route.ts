@@ -194,7 +194,7 @@ export async function GET(request: NextRequest) {
     if (uploadError) {
       console.error('Error uploading to storage:', uploadError)
       // Return image directly if upload fails
-      return new NextResponse(screenshot, {
+      return new NextResponse(Buffer.from(screenshot), {
         headers: {
           'Content-Type': 'image/png',
           'Cache-Control': 'public, max-age=300',
