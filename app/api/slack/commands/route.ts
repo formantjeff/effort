@@ -176,13 +176,6 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   const shareUrl = share ? `${origin}/share/${share.share_token}` : undefined
 
-  // Pre-generate the chart to ensure the URL is ready for Slack
-  try {
-    await fetch(`${origin}/api/chart/${graph.id}?userId=${userId}`)
-  } catch (error) {
-    console.error('Error pre-generating chart:', error)
-  }
-
   const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
 
   return NextResponse.json({
@@ -255,13 +248,6 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
   }
 
   const shareUrl = shareToken ? `${origin}/share/${shareToken}` : undefined
-
-  // Pre-generate the chart to ensure the URL is ready for Slack
-  try {
-    await fetch(`${origin}/api/chart/${graph.id}?userId=${userId}`)
-  } catch (error) {
-    console.error('Error pre-generating chart:', error)
-  }
 
   const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
 

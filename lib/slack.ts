@@ -76,9 +76,11 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
       },
     },
     {
-      type: 'image',
-      image_url: chartUrl,
-      alt_text: `${effortName} effort distribution chart`,
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `<${chartUrl}|View Chart Image>`,
+      },
     },
     {
       type: 'section',
