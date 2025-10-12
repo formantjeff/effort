@@ -16,16 +16,19 @@ export async function GET(request: NextRequest) {
 
     const supabase = createServiceClient()
 
-    // Get graph to check cache and get author ID
+    // Get graph to check cache, get author ID, and updated_at timestamp
     const { data: graph } = await supabase
       .from('effort_graphs')
-      .select('author_id')
+      .select('author_id, updated_at')
       .eq('id', graphId)
       .single()
 
     if (!graph) {
       return new NextResponse('Graph not found', { status: 404 })
     }
+
+    // Convert updated_at to Unix timestamp for filename
+    const updatedAtTimestamp = new Date(graph.updated_at).getTime()
 
     // Get user's theme preference
     const lookupUserId = userId || graph.author_id
@@ -37,23 +40,35 @@ export async function GET(request: NextRequest) {
 
     const theme = preferences?.theme || 'dark'
 
-    // Check if pre-generated chart exists in storage
-    const fileName = `${graph.author_id}/${graphId}-${theme}.png`
+    // Use updated_at timestamp in filename for cache busting
+    const fileName = `${graph.author_id}/${graphId}-${theme}-${updatedAtTimestamp}.png`
 
-    // If refresh requested, delete old cache first
+    // If refresh requested, delete all old versions for this graph/theme
     if (refresh) {
-      await supabase
+      // List all files matching the pattern
+      const { data: existingFiles } = await supabase
         .storage
         .from('effort-charts')
-        .remove([fileName])
+        .list(graph.author_id, {
+          search: `${graphId}-${theme}`
+        })
+
+      // Delete all old versions
+      if (existingFiles && existingFiles.length > 0) {
+        const filesToDelete = existingFiles.map(f => `${graph.author_id}/${f.name}`)
+        await supabase
+          .storage
+          .from('effort-charts')
+          .remove(filesToDelete)
+      }
     }
 
-    // Check if pre-generated chart exists (after potential deletion)
+    // Check if pre-generated chart exists for this exact timestamp
     const { data: existingFiles } = await supabase
       .storage
       .from('effort-charts')
       .list(graph.author_id, {
-        search: `${graphId}-${theme}.png`
+        search: `${graphId}-${theme}-${updatedAtTimestamp}.png`
       })
 
     // If pre-generated chart exists and no refresh requested, redirect to it
@@ -64,6 +79,22 @@ export async function GET(request: NextRequest) {
         .getPublicUrl(fileName)
 
       return NextResponse.redirect(publicUrl)
+    }
+
+    // Delete old versions for this graph/theme before generating new one
+    const { data: oldFiles } = await supabase
+      .storage
+      .from('effort-charts')
+      .list(graph.author_id, {
+        search: `${graphId}-${theme}-`
+      })
+
+    if (oldFiles && oldFiles.length > 0) {
+      const filesToDelete = oldFiles.map(f => `${graph.author_id}/${f.name}`)
+      await supabase
+        .storage
+        .from('effort-charts')
+        .remove(filesToDelete)
     }
 
     // Generate chart using Puppeteer - navigate to our render page
