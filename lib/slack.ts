@@ -70,15 +70,7 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
   const timestamp = Date.now()
   const chartUrl = `${origin}/api/chart/screenshot?graphId=${graphId}&userId=${userId}&t=${timestamp}`
 
-  const blocks: SlackBlock[] = [
-    {
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: effortName,
-      },
-    },
-  ]
+  const blocks: SlackBlock[] = []
 
   // Use screenshot endpoint for inline chart
   blocks.push({

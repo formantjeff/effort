@@ -71,7 +71,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
             flex-direction: column;
           }
           .card-header {
-            padding: 24px 24px 0 24px;
+            padding: 16px 16px 0 16px;
             flex-shrink: 0;
           }
           .card-title {
@@ -81,7 +81,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
             line-height: 1;
           }
           .card-content {
-            padding: 24px;
+            padding: 16px;
             flex: 1;
             display: flex;
             align-items: center;
@@ -105,7 +105,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                     labelLine={false}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     label={(props: any) => `${props.value.toFixed(1)}%`}
-                    outerRadius={120}
+                    outerRadius="45%"
                     fill="#8884d8"
                     dataKey="value"
                   >
