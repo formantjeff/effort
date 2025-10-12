@@ -31,8 +31,8 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
           borderRadius: '8px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         }}>
-          <p style={{ fontWeight: 600, fontSize: '18px', color: textColor, margin: 0 }}>{payload[0].name}</p>
-          <p style={{ fontSize: '16px', color: theme === 'dark' ? '#d1d5db' : '#6b7280', margin: '4px 0 0 0' }}>
+          <p style={{ fontWeight: 600, fontSize: '22px', color: textColor, margin: 0 }}>{payload[0].name}</p>
+          <p style={{ fontSize: '20px', color: theme === 'dark' ? '#d1d5db' : '#6b7280', margin: '4px 0 0 0' }}>
             {payload[0].payload.value.toFixed(1)}% of total
           </p>
         </div>
@@ -76,7 +76,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
           }
           .card-title {
             color: ${textColor};
-            font-size: 28px;
+            font-size: 35px;
             font-weight: 600;
             line-height: 1;
           }
@@ -112,13 +112,13 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                           fill={props.fill}
                           textAnchor={props.textAnchor}
                           dominantBaseline="central"
-                          style={{ fontSize: '20px', fontWeight: 600 }}
+                          style={{ fontSize: '25px', fontWeight: 600 }}
                         >
                           {`${props.value.toFixed(1)}%`}
                         </text>
                       )
                     }}
-                    outerRadius="60%"
+                    outerRadius="75%"
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -127,7 +127,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: '20px', fontWeight: 500 }} />
+                  <Legend wrapperStyle={{ fontSize: '25px', fontWeight: 500 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
