@@ -66,7 +66,9 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
 
 export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string): SlackBlock[] {
   // Use our Puppeteer-based screenshot endpoint for custom styled charts
-  const chartUrl = `${origin}/api/chart/screenshot?graphId=${graphId}&userId=${userId}`
+  // Add timestamp to bust Slack's image cache
+  const timestamp = Date.now()
+  const chartUrl = `${origin}/api/chart/screenshot?graphId=${graphId}&userId=${userId}&t=${timestamp}`
 
   const blocks: SlackBlock[] = [
     {
