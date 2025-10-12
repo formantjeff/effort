@@ -8,6 +8,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = request.nextUrl
     const graphId = searchParams.get('graphId')
     const userId = searchParams.get('userId')
+    const refresh = searchParams.get('refresh') === 'true'
 
     if (!graphId) {
       return new NextResponse('Missing graphId', { status: 400 })
@@ -38,6 +39,16 @@ export async function GET(request: NextRequest) {
 
     // Check if pre-generated chart exists in storage
     const fileName = `${graph.author_id}/${graphId}-${theme}.png`
+
+    // If refresh requested, delete old cache first
+    if (refresh) {
+      await supabase
+        .storage
+        .from('effort-charts')
+        .remove([fileName])
+    }
+
+    // Check if pre-generated chart exists (after potential deletion)
     const { data: existingFiles } = await supabase
       .storage
       .from('effort-charts')
@@ -45,8 +56,8 @@ export async function GET(request: NextRequest) {
         search: `${graphId}-${theme}.png`
       })
 
-    // If pre-generated chart exists, redirect to it
-    if (existingFiles && existingFiles.length > 0) {
+    // If pre-generated chart exists and no refresh requested, redirect to it
+    if (existingFiles && existingFiles.length > 0 && !refresh) {
       const { data: { publicUrl } } = supabase
         .storage
         .from('effort-charts')

@@ -79,8 +79,8 @@ export default function Home() {
       // Only pre-generate if we just closed edit mode (not on initial load)
       const preGenerateChart = async () => {
         try {
-          // Call screenshot endpoint to pre-generate and cache the image
-          await fetch(`/api/chart/screenshot?graphId=${currentGraph.id}&userId=${user?.id}`)
+          // Call screenshot endpoint with refresh=true to regenerate the cached image
+          await fetch(`/api/chart/screenshot?graphId=${currentGraph.id}&userId=${user?.id}&refresh=true`)
         } catch (error) {
           console.error('Error pre-generating chart:', error)
         }
