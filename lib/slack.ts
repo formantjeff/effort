@@ -95,9 +95,13 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   })
 
-  // Add workstream breakdown - combine into fewer blocks to avoid hitting Slack's limits
+  // Normalize percentages to sum to 100% (matching the chart display)
+  const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
   const workstreamText = workstreams
-    .map(ws => `• *${ws.name}*: ${ws.effort.toFixed(1)}%`)
+    .map(ws => {
+      const normalizedPercent = totalEffort > 0 ? (ws.effort / totalEffort) * 100 : 0
+      return `• *${ws.name}*: ${normalizedPercent.toFixed(1)}%`
+    })
     .join('\n')
 
   blocks.push({
