@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     })
 
     const page = await browser.newPage()
-    await page.setViewport({ width: 900, height: 700 })
+    await page.setViewport({ width: 800, height: 800 })
 
     // Navigate to the render page that uses our actual Recharts component
     const renderUrl = `${request.nextUrl.origin}/render/${graphId}?userId=${lookupUserId}&theme=${theme}`

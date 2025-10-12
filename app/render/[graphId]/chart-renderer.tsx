@@ -52,25 +52,27 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
           }
           body {
             margin: 0;
-            padding: 24px;
-            background: ${bgColor};
+            padding: 0;
+            background: ${cardBgColor};
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            min-height: 100vh;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
           }
           .card {
             background: ${cardBgColor};
             border: 1px solid ${borderColor};
             border-radius: 12px;
             overflow: hidden;
-            width: 100%;
-            max-width: 800px;
+            width: 100vw;
+            height: 100vh;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
           }
           .card-header {
             padding: 24px 24px 0 24px;
+            flex-shrink: 0;
           }
           .card-title {
             color: ${textColor};
@@ -80,6 +82,10 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
           }
           .card-content {
             padding: 24px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
           }
         `}</style>
       </head>
@@ -89,7 +95,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
             <h1 className="card-title">{graphName}</h1>
           </div>
           <div className="card-content">
-            <div style={{ width: '100%', height: '400px' }}>
+            <div style={{ width: '100%', height: '100%' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie

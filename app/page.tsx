@@ -325,10 +325,11 @@ export default function Home() {
                   animate={{ x: 0, opacity: 1 }}
                   exit={{ x: swipeDirection * -100 + '%', opacity: 0 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                  drag="x"
+                  drag={isEditing ? false : "x"}
                   dragConstraints={{ left: 0, right: 0 }}
                   dragElastic={0.2}
                   onDragEnd={(event, info: PanInfo) => {
+                    if (isEditing) return // Don't swipe in edit mode
                     const threshold = 50
                     if (info.offset.x > threshold) {
                       handleSwipe(-1) // Swipe right = go to previous
