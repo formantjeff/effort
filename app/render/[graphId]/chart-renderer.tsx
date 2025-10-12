@@ -118,7 +118,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                         </text>
                       )
                     }}
-                    outerRadius="48%"
+                    outerRadius="60%"
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -127,7 +127,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ fontSize: '16px' }} />
+                  <Legend wrapperStyle={{ fontSize: '20px', fontWeight: 500 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
