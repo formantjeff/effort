@@ -27,12 +27,12 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
         <div style={{
           backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
           border: `1px solid ${borderColor}`,
-          padding: '12px',
+          padding: '16px',
           borderRadius: '8px',
           boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
         }}>
-          <p style={{ fontWeight: 600, color: textColor, margin: 0 }}>{payload[0].name}</p>
-          <p style={{ fontSize: '14px', color: theme === 'dark' ? '#d1d5db' : '#6b7280', margin: '4px 0 0 0' }}>
+          <p style={{ fontWeight: 600, fontSize: '18px', color: textColor, margin: 0 }}>{payload[0].name}</p>
+          <p style={{ fontSize: '16px', color: theme === 'dark' ? '#d1d5db' : '#6b7280', margin: '4px 0 0 0' }}>
             {payload[0].payload.value.toFixed(1)}% of total
           </p>
         </div>
@@ -71,17 +71,17 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
             flex-direction: column;
           }
           .card-header {
-            padding: 16px 16px 0 16px;
+            padding: 12px 12px 0 12px;
             flex-shrink: 0;
           }
           .card-title {
             color: ${textColor};
-            font-size: 24px;
+            font-size: 28px;
             font-weight: 600;
             line-height: 1;
           }
           .card-content {
-            padding: 16px;
+            padding: 8px;
             flex: 1;
             display: flex;
             align-items: center;
@@ -104,8 +104,21 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                     cy="50%"
                     labelLine={false}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    label={(props: any) => `${props.value.toFixed(1)}%`}
-                    outerRadius="45%"
+                    label={(props: any) => {
+                      return (
+                        <text
+                          x={props.x}
+                          y={props.y}
+                          fill={props.fill}
+                          textAnchor={props.textAnchor}
+                          dominantBaseline="central"
+                          style={{ fontSize: '20px', fontWeight: 600 }}
+                        >
+                          {`${props.value.toFixed(1)}%`}
+                        </text>
+                      )
+                    }}
+                    outerRadius="48%"
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -114,7 +127,7 @@ export default function ChartRenderer({ graphName, data, theme }: ChartRendererP
                     ))}
                   </Pie>
                   <Tooltip content={<CustomTooltip />} />
-                  <Legend />
+                  <Legend wrapperStyle={{ fontSize: '16px' }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
