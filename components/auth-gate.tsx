@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label'
 type AuthMode = 'signin' | 'signup' | 'reset'
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, loading, signInWithPassword, signUp, resetPassword } = useAuth()
+  const { user, loading, signInWithPassword, signInWithGoogle, signUp, resetPassword } = useAuth()
   const [mode, setMode] = useState<AuthMode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -52,8 +52,13 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const handleGoogleSignIn = () => {
-    alert('Google sign-in coming soon!')
+  const handleGoogleSignIn = async () => {
+    try {
+      await signInWithGoogle()
+    } catch (error) {
+      const err = error as Error
+      setMessage(err?.message || 'Failed to sign in with Google')
+    }
   }
 
   if (loading) {
