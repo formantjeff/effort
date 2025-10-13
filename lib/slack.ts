@@ -65,14 +65,25 @@ export async function updateSlackMessage(channel: string, ts: string, blocks: Sl
 }
 
 export function createEffortBlocks(effortName: string, workstreams: Workstream[], graphId: string, userId: string, origin: string, shareUrl?: string): SlackBlock[] {
+  // Use our Puppeteer-based screenshot endpoint for custom styled charts
+  // Add timestamp to bust Slack's image cache
+  const timestamp = Date.now()
+  const chartUrl = `${origin}/api/chart/screenshot?graphId=${graphId}&userId=${userId}&t=${timestamp}`
+
   const blocks: SlackBlock[] = []
 
-  // Add title
+  // Use screenshot endpoint for inline chart
+  blocks.push({
+    type: 'image',
+    image_url: chartUrl,
+    alt_text: `${effortName} effort distribution chart`,
+  })
+
   blocks.push({
     type: 'section',
     text: {
       type: 'mrkdwn',
-      text: `📊 *${effortName}*`,
+      text: '*Workstream Distribution:*',
     },
   })
 
@@ -93,22 +104,22 @@ export function createEffortBlocks(effortName: string, workstreams: Workstream[]
     },
   })
 
-  // Add view link button
-  const viewUrl = shareUrl || `${origin}/graph/${graphId}`
-  blocks.push({
-    type: 'actions',
-    elements: [
-      {
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'View Chart',
+  // Add view link if share URL provided
+  if (shareUrl) {
+    blocks.push({
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: 'View Interactive Chart',
+          },
+          url: shareUrl,
         },
-        url: viewUrl,
-        style: 'primary',
-      },
-    ],
-  })
+      ],
+    })
+  }
 
   return blocks
 }

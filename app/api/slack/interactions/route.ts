@@ -140,21 +140,10 @@ async function handleViewSubmission(payload: any, origin: string) {
 
   console.log('Workstreams created successfully')
 
-  // Send confirmation via response_action with text
-  // For modal submissions, we return a response that updates the modal
-  // Then immediately post a message to the user
-  const workstreamText = workstreams
-    .map(ws => `• *${ws.name}*: ${ws.effort.toFixed(1)}%`)
-    .join('\n')
-
-  // Use view_id to send a DM (this is a workaround since modals don't support follow-ups)
-  // Post ephemeral message using chat.postEphemeral
-  const slackBotToken = process.env.SLACK_BOT_TOKEN
-  const slackUserId = payload.user.id
-
-  // We need to know what channel the modal was opened from
-  // For now, just return success and user can view with /effort view
-  console.log('Effort created, user can view with /effort view command')
+  // Pre-generate chart in background (fire and forget)
+  // This way it's ready when user views it, but doesn't block the response
+  fetch(`${origin}/api/chart/screenshot?graphId=${graph.id}&userId=${slackUser.user_id}&refresh=true`)
+    .catch(error => console.error('Error pre-generating chart:', error))
 
   return NextResponse.json({
     response_action: 'clear',
