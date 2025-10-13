@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import { InteractivePieChart } from './interactive-pie-chart'
 import { Workstream } from '@/lib/supabase'
-import { Pencil, Share2, Check } from 'lucide-react'
+import { Pencil, Share2, Check, Trash2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
 
 interface EffortPieChartProps {
@@ -16,9 +16,10 @@ interface EffortPieChartProps {
   isEditing: boolean
   title?: string
   graphId?: string
+  onDelete?: () => void
 }
 
-export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEditing, title = 'Effort Distribution', graphId }: EffortPieChartProps) {
+export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEditing, title = 'Effort Distribution', graphId, onDelete }: EffortPieChartProps) {
   const [copiedLink, setCopiedLink] = useState(false)
   const supabase = createClient()
   const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
@@ -129,6 +130,30 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
     }
   }
 
+  const handleDelete = async () => {
+    if (!graphId) return
+
+    if (!confirm(`Are you sure you want to permanently delete "${title}"? This action cannot be undone.`)) {
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/effort/${graphId}`, {
+        method: 'DELETE',
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to delete effort')
+      }
+
+      // Call parent's onDelete handler to update UI
+      onDelete?.()
+    } catch (error) {
+      console.error('Error deleting effort:', error)
+      alert('Failed to delete effort. Please try again.')
+    }
+  }
+
   if (data.length === 0) {
     return (
       <Card className="h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
@@ -150,6 +175,17 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
         <div className="flex items-center justify-between">
           <CardTitle className="text-gray-900 dark:text-white">{title}</CardTitle>
           <div className="flex items-center gap-2">
+            {graphId && onDelete && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleDelete}
+                className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                title="Delete effort"
+              >
+                <Trash2 className="h-5 w-5" />
+              </Button>
+            )}
             {graphId && (
               <Button
                 variant="ghost"

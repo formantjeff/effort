@@ -127,6 +127,9 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
       return await viewEffort(args[1], slackUser.user_id, origin)
     case 'share':
       return await shareEffort(args[1], slackUser.user_id, slackUserId, origin)
+    case 'delete':
+    case 'remove':
+      return await deleteEffort(args[1], slackUser.user_id)
     case 'help':
     default:
       return NextResponse.json({
@@ -136,6 +139,7 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
 • \`/effort list\` - List all your efforts
 • \`/effort view [name]\` - View a specific effort
 • \`/effort share [name]\` - Share an effort to this channel
+• \`/effort delete [name]\` - Delete an effort permanently
 • \`/effort link\` - Check your account link status
 • \`/effort help\` - Show this help message`,
       })
@@ -424,4 +428,77 @@ async function openNewEffortModal(triggerId: string | undefined) {
 
   // Return empty response since modal is opened
   return new NextResponse('', { status: 200 })
+}
+
+async function deleteEffort(effortName: string, userId: string) {
+  if (!effortName) {
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: '❌ Please specify an effort name: `/effort delete [name]`',
+    })
+  }
+
+  const supabase = createServiceClient()
+
+  // Find effort by name
+  const { data: graph } = await supabase
+    .from('effort_graphs')
+    .select('id, name')
+    .eq('author_id', userId)
+    .ilike('name', `%${effortName}%`)
+    .single()
+
+  if (!graph) {
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: `❌ Effort "${effortName}" not found. Use \`/effort list\` to see your efforts.`,
+    })
+  }
+
+  // Delete chart images from storage
+  const { data: files } = await supabase
+    .storage
+    .from('effort-charts')
+    .list(userId, {
+      search: graph.id
+    })
+
+  if (files && files.length > 0) {
+    const filesToDelete = files.map(f => `${userId}/${f.name}`)
+    await supabase
+      .storage
+      .from('effort-charts')
+      .remove(filesToDelete)
+  }
+
+  // Delete workstreams
+  await supabase
+    .from('workstreams')
+    .delete()
+    .eq('graph_id', graph.id)
+
+  // Delete shared_efforts
+  await supabase
+    .from('shared_efforts')
+    .delete()
+    .eq('graph_id', graph.id)
+
+  // Delete the graph
+  const { error: deleteError } = await supabase
+    .from('effort_graphs')
+    .delete()
+    .eq('id', graph.id)
+
+  if (deleteError) {
+    console.error('Error deleting graph:', deleteError)
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: '❌ Failed to delete effort. Please try again.',
+    })
+  }
+
+  return NextResponse.json({
+    response_type: 'ephemeral',
+    text: `✅ Successfully deleted effort: *${graph.name}*`,
+  })
 }

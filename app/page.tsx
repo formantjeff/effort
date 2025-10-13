@@ -346,6 +346,11 @@ export default function Home() {
                     isEditing={isEditing}
                     title={currentGraph.name}
                     graphId={currentGraph.id}
+                    onDelete={() => {
+                      setCurrentGraph(null)
+                      setCurrentTab('library')
+                      loadGraphs()
+                    }}
                   />
                   {isEditing && (
                     <WorkstreamSlider
