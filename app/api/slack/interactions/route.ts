@@ -142,7 +142,6 @@ async function handleViewSubmission(payload: any, origin: string) {
 
   // Post success message to Slack with the effort visualization
   // Use the Slack API to post a message after modal closes
-  const slackBotToken = process.env.SLACK_BOT_TOKEN
   const responseUrl = payload.response_urls?.[0]?.response_url
 
   if (responseUrl) {
@@ -168,11 +167,7 @@ async function handleViewSubmission(payload: any, origin: string) {
         ],
       }),
     }).catch(error => console.error('Error sending follow-up message:', error))
-  } else if (slackBotToken) {
-    // Fallback: use chat.postEphemeral if response_url not available
-    const userId = payload.user.id
-    const channelId = payload.view.team_id // This might not work, response_url is better
-
+  } else {
     console.log('No response_url, cannot send follow-up message')
   }
 

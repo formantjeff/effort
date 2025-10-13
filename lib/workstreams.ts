@@ -15,6 +15,7 @@ export interface ParsedWorkstream {
   name: string
   effort: number
   color: string
+  [key: string]: string | number
 }
 
 export interface ParseWorkstreamsResult {
