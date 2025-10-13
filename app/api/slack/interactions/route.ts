@@ -140,8 +140,41 @@ async function handleViewSubmission(payload: any, origin: string) {
 
   console.log('Workstreams created successfully')
 
-  // Chart will be generated on-demand when first viewed
-  // (Removed pre-generation to stay under 3-second timeout)
+  // Post success message to Slack with the effort visualization
+  // Use the Slack API to post a message after modal closes
+  const slackBotToken = process.env.SLACK_BOT_TOKEN
+  const responseUrl = payload.response_urls?.[0]?.response_url
+
+  if (responseUrl) {
+    // Use response_url to send a follow-up message
+    const { createEffortBlocks } = await import('@/lib/slack')
+    const blocks = createEffortBlocks(effortName, workstreams, graph.id, slackUser.user_id, origin)
+
+    fetch(responseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: 'ephemeral',
+        text: `✅ Created effort: ${effortName}`,
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `✅ *Created effort: ${effortName}*`,
+            },
+          },
+          ...blocks,
+        ],
+      }),
+    }).catch(error => console.error('Error sending follow-up message:', error))
+  } else if (slackBotToken) {
+    // Fallback: use chat.postEphemeral if response_url not available
+    const userId = payload.user.id
+    const channelId = payload.view.team_id // This might not work, response_url is better
+
+    console.log('No response_url, cannot send follow-up message')
+  }
 
   return NextResponse.json({
     response_action: 'clear',

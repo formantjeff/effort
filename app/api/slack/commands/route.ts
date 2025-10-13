@@ -215,13 +215,26 @@ async function viewEffort(effortName: string, userId: string, origin: string) {
 
   const shareUrl = share ? `${origin}/share/${share.share_token}` : undefined
 
-  const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
+  try {
+    const blocks = createEffortBlocks(graph.name, workstreams, graph.id, userId, origin, shareUrl)
 
-  return NextResponse.json({
-    response_type: 'ephemeral',
-    text: `Effort: ${graph.name}`, // Fallback text required when using blocks
-    blocks,
-  })
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: `Effort: ${graph.name}`, // Fallback text required when using blocks
+      blocks,
+    })
+  } catch (error) {
+    console.error('Error creating effort blocks:', error)
+    // Fallback to simple text response
+    const workstreamText = workstreams
+      .map(ws => `• *${ws.name}*: ${ws.effort.toFixed(1)}%`)
+      .join('\n')
+
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: `📊 *${graph.name}*\n\n${workstreamText}`,
+    })
+  }
 }
 
 async function shareEffort(effortName: string, userId: string, slackUserId: string, origin: string) {
