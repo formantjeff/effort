@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
     const text = formData.get('text') as string
     const slackUserId = formData.get('user_id') as string
     const slackTeamId = formData.get('team_id') as string
+    const triggerId = formData.get('trigger_id') as string
 
     console.log('Slash command received:', { command, text, slackUserId, slackTeamId })
 
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
 
     switch (command) {
       case '/effort':
-        return await handleEffortCommand(text, slackUserId, slackTeamId, request.nextUrl.origin)
+        return await handleEffortCommand(text, slackUserId, slackTeamId, request.nextUrl.origin, triggerId)
       default:
         return NextResponse.json({
           response_type: 'ephemeral',
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleEffortCommand(text: string, slackUserId: string, slackTeamId: string, origin: string) {
+async function handleEffortCommand(text: string, slackUserId: string, slackTeamId: string, origin: string, triggerId?: string) {
   const args = text.trim().split(' ')
   const subcommand = args[0]
 
@@ -46,7 +47,7 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
     .eq('slack_user_id', slackUserId)
     .single()
 
-  if (!slackUser) {
+  if (!slackUser && subcommand !== 'link') {
     const linkUrl = `${origin}/api/slack/link?slack_user_id=${slackUserId}&slack_team_id=${slackTeamId}`
     return NextResponse.json({
       response_type: 'ephemeral',
@@ -78,6 +79,9 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
   }
 
   switch (subcommand) {
+    case 'new':
+    case 'create':
+      return await openNewEffortModal(triggerId, origin)
     case 'list':
       return await listEfforts(slackUser.user_id, origin)
     case 'view':
@@ -94,6 +98,7 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
       return NextResponse.json({
         response_type: 'ephemeral',
         text: `*Effort App Commands:*
+• \`/effort new\` - Create a new effort
 • \`/effort list\` - List all your efforts
 • \`/effort view [name]\` - View a specific effort
 • \`/effort share [name]\` - Share an effort to this channel
@@ -267,4 +272,109 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
     text: `Effort: ${graph.name}`, // Fallback text required when using blocks
     blocks,
   })
+}
+
+async function openNewEffortModal(triggerId: string | undefined, origin: string) {
+  if (!triggerId) {
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: '❌ Unable to open modal. Please try again.',
+    })
+  }
+
+  const modal = {
+    type: 'modal',
+    callback_id: 'create_effort_modal',
+    title: {
+      type: 'plain_text',
+      text: 'Create New Effort',
+    },
+    submit: {
+      type: 'plain_text',
+      text: 'Create',
+    },
+    blocks: [
+      {
+        type: 'input',
+        block_id: 'effort_name_block',
+        label: {
+          type: 'plain_text',
+          text: 'Effort Name',
+        },
+        element: {
+          type: 'plain_text_input',
+          action_id: 'effort_name_input',
+          placeholder: {
+            type: 'plain_text',
+            text: 'e.g., Q1 Team Allocation',
+          },
+        },
+      },
+      {
+        type: 'input',
+        block_id: 'workstreams_block',
+        label: {
+          type: 'plain_text',
+          text: 'Workstreams',
+        },
+        element: {
+          type: 'plain_text_input',
+          action_id: 'workstreams_input',
+          multiline: true,
+          placeholder: {
+            type: 'plain_text',
+            text: 'Engineering, 60\nDesign, 25\nQA, 15\n\nFormat: name, percentage (one per line)\nPercentages will be normalized to 100%',
+          },
+        },
+        hint: {
+          type: 'plain_text',
+          text: 'Enter one workstream per line in the format: name, percentage',
+        },
+      },
+      {
+        type: 'input',
+        block_id: 'description_block',
+        optional: true,
+        label: {
+          type: 'plain_text',
+          text: 'Description (optional)',
+        },
+        element: {
+          type: 'plain_text_input',
+          action_id: 'description_input',
+          placeholder: {
+            type: 'plain_text',
+            text: 'Add a description for this effort...',
+          },
+        },
+      },
+    ],
+  }
+
+  // Open modal using Slack API
+  const slackBotToken = process.env.SLACK_BOT_TOKEN
+  const response = await fetch('https://slack.com/api/views.open', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${slackBotToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      trigger_id: triggerId,
+      view: modal,
+    }),
+  })
+
+  const result = await response.json()
+
+  if (!result.ok) {
+    console.error('Error opening modal:', result)
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: '❌ Failed to open modal. Please try again.',
+    })
+  }
+
+  // Return empty response since modal is opened
+  return new NextResponse('', { status: 200 })
 }
