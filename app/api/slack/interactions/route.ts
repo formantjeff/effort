@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase-service'
 import { parseWorkstreams } from '@/lib/workstreams'
-import { createEffortBlocks } from '@/lib/slack'
 
 // Slack Interactions endpoint (for modal submissions)
 export async function POST(request: NextRequest) {
@@ -33,6 +32,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handleViewSubmission(payload: any, origin: string) {
   const values = payload.view.state.values
   const userId = payload.user.id

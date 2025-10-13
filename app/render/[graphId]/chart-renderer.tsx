@@ -16,7 +16,6 @@ interface ChartRendererProps {
 }
 
 export default function ChartRenderer({ graphName, data, theme }: ChartRendererProps) {
-  const bgColor = theme === 'dark' ? '#374151' : '#f9fafb'
   const cardBgColor = theme === 'dark' ? '#1f2937' : '#ffffff'
   const textColor = theme === 'dark' ? '#ffffff' : '#111827'
   const borderColor = theme === 'dark' ? '#4b5563' : '#e5e7eb'

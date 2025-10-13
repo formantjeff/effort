@@ -274,7 +274,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
   })
 }
 
-async function openNewEffortModal(triggerId: string | undefined, origin: string) {
+async function openNewEffortModal(triggerId: string | undefined, _origin: string) {
   if (!triggerId) {
     return NextResponse.json({
       response_type: 'ephemeral',
