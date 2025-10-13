@@ -42,12 +42,15 @@ async function handleViewSubmission(payload: any, origin: string) {
   const workstreamsText = values.workstreams_block.workstreams_input.value
   const description = values.description_block?.description_input?.value || null
 
-  console.log('Creating effort:', { effortName, workstreamsText, description })
+  console.log('Creating effort:', { effortName, workstreamsText, description, userId })
 
   // Parse workstreams
+  console.log('Parsing workstreams...')
   const { workstreams, errors } = parseWorkstreams(workstreamsText)
+  console.log('Parse result:', { workstreamsCount: workstreams.length, errorsCount: errors.length })
 
   if (errors.length > 0) {
+    console.log('Validation errors:', errors)
     return NextResponse.json({
       response_action: 'errors',
       errors: {
@@ -66,6 +69,7 @@ async function handleViewSubmission(payload: any, origin: string) {
   }
 
   // Get linked user
+  console.log('Looking up Slack user...')
   const supabase = createServiceClient()
   const { data: slackUser } = await supabase
     .from('slack_users')
