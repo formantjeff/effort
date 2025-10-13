@@ -44,7 +44,7 @@ async function handleViewSubmission(payload: any, origin: string) {
 
   console.log('Creating effort:', { effortName, workstreamsText, description, userId })
 
-  // Parse workstreams
+  // Parse workstreams (synchronous validation)
   console.log('Parsing workstreams...')
   const { workstreams, errors } = parseWorkstreams(workstreamsText)
   console.log('Parse result:', { workstreamsCount: workstreams.length, errorsCount: errors.length })
@@ -68,7 +68,7 @@ async function handleViewSubmission(payload: any, origin: string) {
     })
   }
 
-  // Get linked user
+  // Verify user is linked
   console.log('Looking up Slack user...')
   const supabase = createServiceClient()
   const { data: slackUser } = await supabase
@@ -76,6 +76,8 @@ async function handleViewSubmission(payload: any, origin: string) {
     .select('user_id')
     .eq('slack_user_id', userId)
     .single()
+
+  console.log('Slack user lookup complete:', { found: !!slackUser })
 
   if (!slackUser) {
     return NextResponse.json({
@@ -86,57 +88,72 @@ async function handleViewSubmission(payload: any, origin: string) {
     })
   }
 
-  // Create effort graph
-  const { data: graph, error: graphError } = await supabase
-    .from('effort_graphs')
-    .insert({
-      name: effortName,
-      description,
-      author_id: slackUser.user_id,
-    })
-    .select('id')
-    .single()
+  // Return success immediately and create effort asynchronously
+  console.log('Returning success, creating effort asynchronously...')
 
-  if (graphError || !graph) {
-    console.error('Error creating graph:', graphError)
-    return NextResponse.json({
-      response_action: 'errors',
-      errors: {
-        effort_name: 'Failed to create effort. Please try again.',
-      },
-    })
-  }
-
-  // Create workstreams
-  const workstreamsData = workstreams.map(ws => ({
-    name: ws.name,
-    effort: ws.effort,
-    color: ws.color,
-    graph_id: graph.id,
-  }))
-
-  const { error: workstreamsError } = await supabase
-    .from('workstreams')
-    .insert(workstreamsData)
-
-  if (workstreamsError) {
-    console.error('Error creating workstreams:', workstreamsError)
-    // Cleanup: delete the graph
-    await supabase.from('effort_graphs').delete().eq('id', graph.id)
-    return NextResponse.json({
-      response_action: 'errors',
-      errors: {
-        effort_name: 'Failed to create workstreams. Please try again.',
-      },
-    })
-  }
-
-  // Return success immediately to avoid Slack's 3-second timeout
-  // Pre-generate chart asynchronously
-  fetch(`${origin}/api/chart/screenshot?graphId=${graph.id}&userId=${slackUser.user_id}&refresh=true`)
-    .catch(error => console.error('Error pre-generating chart:', error))
+  // Do all database work asynchronously
+  createEffortAsync(effortName, description, workstreams, slackUser.user_id, origin)
 
   return NextResponse.json({
     response_action: 'clear',
   })
+}
+
+async function createEffortAsync(
+  effortName: string,
+  description: string | null,
+  workstreams: Array<{ name: string; effort: number; color: string }>,
+  authorId: string,
+  origin: string
+) {
+  try {
+    console.log('Starting async effort creation...')
+    const supabase = createServiceClient()
+
+    // Create effort graph
+    const { data: graph, error: graphError } = await supabase
+      .from('effort_graphs')
+      .insert({
+        name: effortName,
+        description,
+        author_id: authorId,
+      })
+      .select('id')
+      .single()
+
+    if (graphError || !graph) {
+      console.error('Error creating graph:', graphError)
+      return
+    }
+
+    console.log('Graph created:', graph.id)
+
+    // Create workstreams
+    const workstreamsData = workstreams.map(ws => ({
+      name: ws.name,
+      effort: ws.effort,
+      color: ws.color,
+      graph_id: graph.id,
+    }))
+
+    const { error: workstreamsError } = await supabase
+      .from('workstreams')
+      .insert(workstreamsData)
+
+    if (workstreamsError) {
+      console.error('Error creating workstreams:', workstreamsError)
+      // Cleanup: delete the graph
+      await supabase.from('effort_graphs').delete().eq('id', graph.id)
+      return
+    }
+
+    console.log('Workstreams created successfully')
+
+    // Pre-generate chart
+    await fetch(`${origin}/api/chart/screenshot?graphId=${graph.id}&userId=${authorId}&refresh=true`)
+      .then(() => console.log('Chart pre-generated'))
+      .catch(error => console.error('Error pre-generating chart:', error))
+  } catch (error) {
+    console.error('Error in async effort creation:', error)
+  }
 }
