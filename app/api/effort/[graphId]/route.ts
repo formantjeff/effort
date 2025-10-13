@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase-service'
-import { createClient } from '@/lib/supabase-browser-server'
+import { createClient } from '@/lib/supabase-server'
 
 export async function DELETE(
   request: NextRequest,
@@ -8,7 +8,7 @@ export async function DELETE(
 ) {
   try {
     const { graphId } = await params
-    const supabase = createClient()
+    const supabase = await createClient()
 
     // Get the current user
     const { data: { user } } = await supabase.auth.getUser()
