@@ -47,7 +47,14 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
     .eq('slack_user_id', slackUserId)
     .single()
 
-  if (!slackUser && subcommand !== 'link') {
+  // Handle 'link' command regardless of link status
+  if (subcommand === 'link') {
+    if (slackUser) {
+      return NextResponse.json({
+        response_type: 'ephemeral',
+        text: '✅ Your account is already linked!',
+      })
+    }
     const linkUrl = `${origin}/api/slack/link?slack_user_id=${slackUserId}&slack_team_id=${slackTeamId}`
     return NextResponse.json({
       response_type: 'ephemeral',
@@ -78,21 +85,48 @@ async function handleEffortCommand(text: string, slackUserId: string, slackTeamI
     })
   }
 
+  // For all other commands, require account to be linked
+  if (!slackUser) {
+    const linkUrl = `${origin}/api/slack/link?slack_user_id=${slackUserId}&slack_team_id=${slackTeamId}`
+    return NextResponse.json({
+      response_type: 'ephemeral',
+      text: '👋 Welcome to Effort! Please link your account first by running `/effort link`',
+      blocks: [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '👋 *Welcome to Effort!*\n\nTo use the Effort app in Slack, you need to link your Slack account with your Effort account.\n\nClick the button below and log in to your Effort account to complete the link.',
+          },
+        },
+        {
+          type: 'actions',
+          elements: [
+            {
+              type: 'button',
+              text: {
+                type: 'plain_text',
+                text: 'Link Account',
+              },
+              url: linkUrl,
+              style: 'primary',
+            },
+          ],
+        },
+      ],
+    })
+  }
+
   switch (subcommand) {
     case 'new':
     case 'create':
-      return await openNewEffortModal(triggerId, origin)
+      return await openNewEffortModal(triggerId)
     case 'list':
       return await listEfforts(slackUser.user_id, origin)
     case 'view':
       return await viewEffort(args[1], slackUser.user_id, origin)
     case 'share':
       return await shareEffort(args[1], slackUser.user_id, slackUserId, origin)
-    case 'link':
-      return NextResponse.json({
-        response_type: 'ephemeral',
-        text: '✅ Your account is already linked!',
-      })
     case 'help':
     default:
       return NextResponse.json({
@@ -274,7 +308,7 @@ async function shareEffort(effortName: string, userId: string, slackUserId: stri
   })
 }
 
-async function openNewEffortModal(triggerId: string | undefined, _origin: string) {
+async function openNewEffortModal(triggerId: string | undefined) {
   if (!triggerId) {
     return NextResponse.json({
       response_type: 'ephemeral',
