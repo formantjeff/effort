@@ -131,17 +131,11 @@ async function handleViewSubmission(payload: any, origin: string) {
     })
   }
 
-  // Pre-generate the chart image (this will trigger Puppeteer)
-  try {
-    await fetch(`${origin}/api/chart/screenshot?graphId=${graph.id}&userId=${slackUser.user_id}&refresh=true`)
-  } catch (error) {
-    console.error('Error pre-generating chart:', error)
-    // Non-fatal - chart will be generated on first view
-  }
+  // Return success immediately to avoid Slack's 3-second timeout
+  // Pre-generate chart asynchronously
+  fetch(`${origin}/api/chart/screenshot?graphId=${graph.id}&userId=${slackUser.user_id}&refresh=true`)
+    .catch(error => console.error('Error pre-generating chart:', error))
 
-  // Success! Return response that triggers message to channel
-  // Note: Slack will automatically close the modal and we can't directly post a message here
-  // Instead, we return success and let the user run /effort view to see it
   return NextResponse.json({
     response_action: 'clear',
   })
