@@ -5,6 +5,14 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import { LogOut, Moon, Sun, Share2, Trash2, Eye, Copy, Check } from 'lucide-react'
 import { useTheme } from './theme-provider'
 import { createClient } from '@/lib/supabase-browser'
@@ -23,6 +31,8 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
   const { theme, setTheme, loading } = useTheme()
   const [shares, setShares] = useState<ShareWithGraph[]>([])
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [shareToDelete, setShareToDelete] = useState<{ id: string; name: string } | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
@@ -49,19 +59,24 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
     }
   }
 
-  async function handleDeleteShare(id: string, name: string) {
-    if (!confirm(`Stop sharing "${name}"? The link will no longer work.`)) {
-      return
-    }
+  function openDeleteDialog(id: string, name: string) {
+    setShareToDelete({ id, name })
+    setDeleteDialogOpen(true)
+  }
+
+  async function confirmDeleteShare() {
+    if (!shareToDelete) return
 
     try {
       const { error } = await supabase
         .from('shared_efforts')
         .update({ is_active: false })
-        .eq('id', id)
+        .eq('id', shareToDelete.id)
 
       if (error) throw error
-      setShares((prev) => prev.filter((s) => s.id !== id))
+      setShares((prev) => prev.filter((s) => s.id !== shareToDelete.id))
+      setDeleteDialogOpen(false)
+      setShareToDelete(null)
     } catch (error) {
       console.error('Error deleting share:', error)
       alert('Failed to stop sharing. Please try again.')
@@ -153,7 +168,7 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteShare(share.id, share.effort_graphs.name)}
+                      onClick={() => openDeleteDialog(share.id, share.effort_graphs.name)}
                       className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -165,6 +180,33 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
           )}
         </CardContent>
       </Card>
+
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent className="bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
+          <DialogHeader>
+            <DialogTitle className="text-gray-900 dark:text-white">Stop sharing &quot;{shareToDelete?.name}&quot;?</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-slate-400">
+              The link will no longer work.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              className="border-gray-300 dark:border-slate-600 text-gray-700 dark:text-slate-300"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={confirmDeleteShare}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              OK
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
