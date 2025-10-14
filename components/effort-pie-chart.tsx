@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
 import { InteractivePieChart } from './interactive-pie-chart'
 import { Workstream } from '@/lib/supabase'
-import { Pencil, Share2, Check, Trash2 } from 'lucide-react'
+import { Pencil, Share2, Check, Trash2, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase-browser'
 
 interface EffortPieChartProps {
@@ -21,6 +21,7 @@ interface EffortPieChartProps {
 
 export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEditing, title = 'Effort Distribution', graphId, onDelete }: EffortPieChartProps) {
   const [copiedLink, setCopiedLink] = useState(false)
+  const [isSharing, setIsSharing] = useState(false)
   const supabase = createClient()
   const totalEffort = workstreams.reduce((sum, ws) => sum + ws.effort, 0)
 
@@ -49,6 +50,7 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
   const handleCreateShare = async () => {
     if (!graphId) return
 
+    setIsSharing(true)
     try {
       // Check if share already exists
       const { data: existingShare } = await supabase
@@ -136,6 +138,8 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
       }
     } catch (error) {
       console.error('Error creating share:', error)
+    } finally {
+      setIsSharing(false)
     }
   }
 
@@ -209,10 +213,17 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
                   variant="ghost"
                   size="icon"
                   onClick={handleCreateShare}
+                  disabled={isSharing}
                   className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700"
-                  title={copiedLink ? "Link copied!" : "Create share link"}
+                  title={isSharing ? "Preparing share..." : copiedLink ? "Link copied!" : "Create share link"}
                 >
-                  {copiedLink ? <Check className="h-5 w-5 text-green-500" /> : <Share2 className="h-5 w-5" />}
+                  {isSharing ? (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  ) : copiedLink ? (
+                    <Check className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Share2 className="h-5 w-5" />
+                  )}
                 </Button>
               )}
               <Button
@@ -257,10 +268,17 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
                 variant="ghost"
                 size="icon"
                 onClick={handleCreateShare}
+                disabled={isSharing}
                 className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700"
-                title={copiedLink ? "Link copied!" : "Create share link"}
+                title={isSharing ? "Preparing share..." : copiedLink ? "Link copied!" : "Create share link"}
               >
-                {copiedLink ? <Check className="h-5 w-5 text-green-500" /> : <Share2 className="h-5 w-5" />}
+                {isSharing ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : copiedLink ? (
+                  <Check className="h-5 w-5 text-green-500" />
+                ) : (
+                  <Share2 className="h-5 w-5" />
+                )}
               </Button>
             )}
             <Button
