@@ -158,7 +158,41 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
     return (
       <Card className="h-full bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-700">
         <CardHeader>
-          <CardTitle className="text-gray-900 dark:text-white">{title}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-gray-900 dark:text-white">{title}</CardTitle>
+            <div className="flex items-center gap-2">
+              {graphId && onDelete && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleDelete}
+                  className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+                  title="Delete effort"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
+              )}
+              {graphId && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCreateShare}
+                  className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700"
+                  title={copiedLink ? "Link copied!" : "Create share link"}
+                >
+                  {copiedLink ? <Check className="h-5 w-5 text-green-500" /> : <Share2 className="h-5 w-5" />}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onEditClick}
+                className="shrink-0 text-gray-600 dark:text-slate-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-700"
+              >
+                <Pencil className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-[400px]">
           <p className="text-gray-500 dark:text-slate-400 text-center">
