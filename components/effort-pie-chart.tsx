@@ -84,6 +84,38 @@ export function EffortPieChart({ workstreams, onEditClick, onUpdateEffort, isEdi
       // Try native share first (mobile), then fall back to clipboard
       if (navigator.share) {
         try {
+          // Try to fetch the chart image and include it in the share
+          const { data: user } = await supabase.auth.getUser()
+          if (user.user) {
+            const imageUrl = `${window.location.origin}/api/chart/screenshot?graphId=${graphId}&userId=${user.user.id}`
+
+            try {
+              // Fetch the image as a blob
+              const imageResponse = await fetch(imageUrl)
+              if (imageResponse.ok) {
+                const blob = await imageResponse.blob()
+                const file = new File([blob], `${title || 'effort'}.png`, { type: 'image/png' })
+
+                // Try to share with the image file
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  await navigator.share({
+                    title: title || 'Effort Distribution',
+                    text: `Check out my effort allocation: ${title}`,
+                    url: url,
+                    files: [file],
+                  })
+                  setCopiedLink(true)
+                  setTimeout(() => setCopiedLink(false), 2000)
+                  return
+                }
+              }
+            } catch (imageError) {
+              console.log('Could not include image, sharing URL only:', imageError)
+              // Fall through to URL-only share
+            }
+          }
+
+          // Share URL only if image sharing failed or isn't supported
           await navigator.share({
             title: title || 'Effort Distribution',
             text: `Check out my effort allocation: ${title}`,
