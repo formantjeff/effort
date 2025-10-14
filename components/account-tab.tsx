@@ -49,7 +49,11 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
     }
   }
 
-  async function handleDeleteShare(id: string) {
+  async function handleDeleteShare(id: string, name: string) {
+    if (!confirm(`Stop sharing "${name}"? The link will no longer work.`)) {
+      return
+    }
+
     try {
       const { error } = await supabase
         .from('shared_efforts')
@@ -60,6 +64,7 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
       setShares((prev) => prev.filter((s) => s.id !== id))
     } catch (error) {
       console.error('Error deleting share:', error)
+      alert('Failed to stop sharing. Please try again.')
     }
   }
 
@@ -148,7 +153,7 @@ export function AccountTab({ email, onSignOut }: AccountTabProps) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteShare(share.id)}
+                      onClick={() => handleDeleteShare(share.id, share.effort_graphs.name)}
                       className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/20"
                     >
                       <Trash2 className="h-4 w-4" />
