@@ -90,7 +90,7 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
               <Button
                 onClick={handleGoogleSignIn}
                 variant="outline"
-                className="w-full bg-white hover:bg-gray-100 text-gray-900 border-0"
+                className="w-full bg-white hover:bg-gray-100 dark:bg-white dark:hover:bg-gray-100 text-gray-900 dark:text-gray-900 border-0 font-medium"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
